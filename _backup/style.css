@@ -49,39 +49,6 @@ body {
     background: var(--accent-color);
 }
 
-/* Wooden Border Style */
-.wooden-border {
-    position: relative;
-    border: 2px solid transparent !important; /* 2px width */
-    background-clip: padding-box !important; /* Ensure content bg stays inside */
-    border-radius: 4px !important; /* Force 4px radius */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease;
-}
-
-.wooden-border::before {
-    content: "";
-    position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px; /* Match 2px width */
-    /* Real wood texture with Dark Brown (#5E3B1E) overlay */
-    background-image: linear-gradient(rgba(94, 59, 30, 0.85), rgba(94, 59, 30, 0.85)), url('../images/wood-texture.jpg');
-    background-size: cover;
-    background-position: center;
-    border-radius: 4px;
-    z-index: -1;
-    /* Mask to create a hollow frame */
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    padding: 2px; /* Thickness of the frame */
-}
-
-.wooden-border:hover {
-    transform: scale(1.02); /* Slight zoom on hover */
-}
-
 /* -----------------------
    Common Layout
    ----------------------- */
@@ -332,12 +299,14 @@ video.floating-media {
 
 .team-grid {
     display: flex;
-    flex-direction: column;
-    overflow-x: visible;
+    flex-direction: row;
+    overflow-x: auto;
     gap: 30px;
     margin-top: 30px;
-    padding: 10px 5px 30px 5px; /* Add padding for shadow */
-    align-items: center; /* Center items in column */
+    padding: 10px 5px 30px 5px; /* Add padding for shadow and scrollbar */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start; /* Align items to top */
 }
 
 .team-member {
@@ -348,13 +317,11 @@ video.floating-media {
     border: 1px solid rgba(255,255,255,0.2);
     transition: transform 0.3s ease;
     flex: 0 0 auto;
-    width: 100%;
-    max-width: 900px; /* Wider card for horizontal layout */
+    width: 350px;
+    max-width: 90vw; /* Responsive width for small screens */
     display: flex;
-    flex-direction: row; /* Horizontal internal layout */
-    align-items: flex-start; /* Top align image and text */
-    gap: 20px;
-    text-align: left;
+    flex-direction: column;
+    align-items: center;
 }
 
 .team-member:hover {
@@ -366,29 +333,20 @@ video.floating-media {
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 0; /* Removed bottom margin */
+    margin-bottom: 20px;
     flex-shrink: 0;
-}
-
-.member-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1; /* Take remaining space */
 }
 
 .team-member h3 {
     color: var(--accent-color);
     margin-bottom: 10px;
-    text-align: left;
-    margin-top: 0;
+    text-align: center;
 }
 
 .team-member p {
     text-align: left;
     font-size: 0.95em;
     line-height: 1.6;
-    margin: 0;
 }
 
 /* -----------------------
@@ -446,28 +404,6 @@ video.floating-media {
 }
 
 @media (max-width: 768px) {
-    .team-grid {
-        padding-bottom: 0;
-    }
-
-    .team-member {
-        flex-direction: column; /* Stack vertically on small screens */
-        align-items: center;
-        text-align: center;
-    }
-
-    .member-info {
-        align-items: center; /* Center text on mobile */
-    }
-
-    .team-member h3 {
-        text-align: center;
-    }
-
-    .team-member p {
-        text-align: left; /* Keep paragraphs left-aligned for readability */
-    }
-
     .header h1 {
         font-size: 2em;
     }
