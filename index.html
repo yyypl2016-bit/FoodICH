@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,9 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: linear-gradient(135deg, #e16746 0%, #c43f58 100%);
+            /* Update background to match about.html for visual consistency */
+            /* Source: css/style.css --bg-gradient: radial-gradient(circle at center, #2b1d1d 0%, #000000 100%); */
+            background: radial-gradient(circle at center, #2b1d1d 0%, #000000 100%);
             font-family: 'Arial', sans-serif;
         }
         
@@ -183,8 +185,6 @@
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
     
     <script>
         // 全局变量
@@ -287,31 +287,51 @@
         function create3DText() {
             const loader = new THREE.FontLoader();
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
-                // 定义文本行和对应的材质
+                // Food-themed color palette
+                // Tomato Red: #FF6347
+                // Avocado Green: #568203
+                // Chocolate Brown: #D2691E
+                // Wheat/Gold: #F5DEB3 or #FECA57 (existing accent)
+
+                // Define materials with food colors
+                const tomatoMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xFF6347, // Tomato Red
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.95
+                });
+
+                const avocadoMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x568203, // Avocado Green
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.95
+                });
+
+                const chocolateMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xD2691E, // Chocolate Brown
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.95
+                });
+
+                const wheatMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xF5DEB3, // Wheat
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.95
+                });
+
+                // Map text lines to materials
                 const textLines = [
-                    { text: 'WHAT YOU', material: 'white', height: 1 },
-                    { text: 'SEE', material: 'gold', height: 4 },
-                    { text: 'IS WHAT YOU', material: 'white', height: 1 },
-                    { text: 'EAT', material: 'gold', height: 4 }
+                    { text: 'WHAT YOU', material: tomatoMaterial, height: 1 },
+                    { text: 'SEE', material: avocadoMaterial, height: 4 },
+                    { text: 'IS WHAT YOU', material: chocolateMaterial, height: 1 },
+                    { text: 'EAT', material: wheatMaterial, height: 4 }
                 ];
                 
-                // 创建材质
-                const goldMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xCC9900,
-                    shininess: 100,
-                    transparent: true,
-                    opacity: 0.9
-                });
-                
-                const whiteMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xFFFFFF,
-                    shininess: 100,
-                    transparent: true,
-                    opacity: 0.9
-                });
-                
                 const textGroup = new THREE.Group();
-                const lineHeight = 4; // 行间距
+                const lineHeight = 4; // Line spacing
                 const totalHeight = (textLines.length - 1) * lineHeight;
                 
                 textLines.forEach((line, index) => {
@@ -327,21 +347,17 @@
                         bevelSegments: 5
                     });
                     
-                    // 计算每行文字的边界框并居中
+                    // Center the text
                     textGeometry.computeBoundingBox();
                     const box = textGeometry.boundingBox;
                     const centerOffsetX = -0.5 * (box.max.x - box.min.x);
                     const centerOffsetZ = -0.5 * (box.max.z - box.min.z);
                     
-                    // 将几何体水平居中
                     textGeometry.translate(centerOffsetX, 0, centerOffsetZ);
                     
-                    // 选择材质
-                    const material = line.material === 'gold' ? goldMaterial : whiteMaterial;
+                    const textMesh = new THREE.Mesh(textGeometry, line.material);
                     
-                    const textMesh = new THREE.Mesh(textGeometry, material);
-                    
-                    // 设置垂直位置，从上到下排列，整体居中
+                    // Set vertical position
                     textMesh.position.y = (totalHeight / 2) - (index * lineHeight);
                     textMesh.castShadow = true;
                     textMesh.receiveShadow = true;
@@ -352,7 +368,7 @@
                 textGroup.position.set(0, 0, 0);
                 scene.add(textGroup);
                 
-                // 将textGroup赋值给全局变量以便后续使用
+                // Assign to global variable
                 textMesh = textGroup;
             });
         }
