@@ -293,13 +293,20 @@ video.floating-media {
 .team-section {
     text-align: center;
     margin-top: 40px;
+    width: 100%; /* Ensure full width for scrolling */
+    overflow: hidden; /* Hide overflow from section, let grid handle it */
 }
 
 .team-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
     gap: 30px;
     margin-top: 30px;
+    padding: 10px 5px 30px 5px; /* Add padding for shadow and scrollbar */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start; /* Align items to top */
 }
 
 .team-member {
@@ -309,6 +316,12 @@ video.floating-media {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.2);
     transition: transform 0.3s ease;
+    flex: 0 0 auto;
+    width: 350px;
+    max-width: 90vw; /* Responsive width for small screens */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .team-member:hover {
@@ -321,15 +334,19 @@ video.floating-media {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .team-member h3 {
     color: var(--accent-color);
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .team-member p {
     text-align: left;
+    font-size: 0.95em;
+    line-height: 1.6;
 }
 
 /* -----------------------
@@ -387,10 +404,6 @@ video.floating-media {
 }
 
 @media (max-width: 768px) {
-    .team-grid {
-        grid-template-columns: 1fr;
-    }
-    
     .header h1 {
         font-size: 2em;
     }
