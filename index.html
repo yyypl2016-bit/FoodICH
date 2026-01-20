@@ -1,855 +1,672 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What You See is What You Eat</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: linear-gradient(135deg, #e16746 0%, #c43f58 100%);
-            font-family: 'Arial', sans-serif;
-        }
-        
-        #container {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
-        
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            z-index: 100;
-            font-size: 18px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        #controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 100;
-        }
-        
-        #controls p {
-            color: white;
-        }
-        
-        .control-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .control-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-        
-        /* 汉堡菜单样式 */
-        .hamburger-menu {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .hamburger-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-        
-        .hamburger-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-        
-        .hamburger-line {
-            width: 20px;
-            height: 2px;
-            background: white;
-            margin: 2px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .hamburger-btn.active .hamburger-line:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        
-        .hamburger-btn.active .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .hamburger-btn.active .hamburger-line:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
-        
-        .menu-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 15px;
-            padding: 10px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.2);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            min-width: 180px;
-        }
-        
-        .menu-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        .menu-item {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 12px 16px;
-            margin: 5px 0;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            text-align: center;
-        }
-        
-        .menu-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateX(5px);
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="container">
-        <div id="info">
-            <h2>What You See is What You Eat</h2>
-            <p>by Studio for Narrative Spaces</p>
-        </div>
-        
-        <!-- 汉堡菜单 -->
-        <div class="hamburger-menu">
-            <button class="hamburger-btn" onclick="toggleMenu()">
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-            </button>
-            <div class="menu-dropdown" id="menuDropdown">
-                <a href="index.html" class="menu-item">Home</a>
-                <a href="about.html" class="menu-item">About</a>
-                <a href="food.html" class="menu-item">Food</a>
-                <a href="exhibition.html" class="menu-item">Exhibition</a>
-                <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
-                <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
-            </div>
-        </div>
-        
-        <div id="controls">
-            <!-- <button class="control-btn" onclick="toggleAnimation()">暂停/继续</button> -->
-            <button class="control-btn" onclick="resetCamera()">Rest View</button>
 
-            <p>Drag the mouse to rotate the view | Scroll wheel to zoom</p>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div>LOADING FOOD ORBIT...</div>
+    </div>
+
+    <!-- Menu -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" onclick="toggleMenu()">
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="index.html" class="menu-item">Home</a>
+            <a href="about.html" class="menu-item">About</a>
+            <a href="food.html" class="menu-item">Food</a>
+            <a href="exhibition.html" class="menu-item">Exhibition</a>
+            <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+            <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
         </div>
     </div>
+
+    <!-- 3D Container -->
+    <div id="canvas-container"></div>
     
+    <div class="footer-hint">Drag to rotate • Scroll to zoom • Click to visit</div>
+
+    <!-- Three.js & Scripts -->
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
     
+    <script src="js/main.js"></script>
     <script>
-        // 全局变量
+        // Debug Console Logic
+        const logContainer = document.createElement('div');
+        logContainer.id = 'debug-console';
+        logContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;max-height:50%;overflow-y:auto;background:rgba(0,0,0,0.7);color:lime;font-family:monospace;padding:10px;z-index:999999;pointer-events:none;display:none;';
+        document.head.appendChild(logContainer);
+        
+        function showConsole() {
+            if (!document.body.contains(logContainer)) document.body.appendChild(logContainer);
+            logContainer.style.display = 'block';
+        }
+
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function appendLog(type, args) {
+            const msg = args.map(arg => {
+                if (arg instanceof Error) return arg.stack || arg.message;
+                if (typeof arg === 'object') return JSON.stringify(arg);
+                return String(arg);
+            }).join(' ');
+            
+            const line = document.createElement('div');
+            line.style.color = type === 'error' ? '#ff5555' : (type === 'warn' ? '#ffca28' : '#55ff55');
+            line.textContent = `[${type.toUpperCase()}] ${msg}`;
+            logContainer.appendChild(line);
+            logContainer.scrollTop = logContainer.scrollHeight;
+
+            if (type === 'error') showConsole();
+        }
+
+        console.log = function(...args) { originalLog.apply(console, args); appendLog('log', args); };
+        console.error = function(...args) { originalError.apply(console, args); appendLog('error', args); };
+        console.warn = function(...args) { originalWarn.apply(console, args); appendLog('warn', args); };
+        window.onerror = function(msg, url, line, col, error) { appendLog('error', [`Global Error: ${msg} at ${line}:${col}`, error]); return false; };
+    </script>
+
+    <script>
+        // UI Logic (Moved to main.js) - Keeping 3D Logic below
+
+        // 3D Logic
+        const foodItems = [
+            {
+                name: "煲仔飯 Clay Pot Rice",
+                model: "models/claypot-rice.fbx",
+                link: "claypot.html",
+                scale: 0.04
+            },
+            {
+                name: "流汁湯包 Steam Buns",
+                model: "models/meat-bun.fbx",
+                link: "steam-buns.html",
+                scale: 0.04
+            },
+            {
+                name: "客家釀豆腐 Hakka Tofu",
+                model: "models/garden-tofu.fbx",
+                link: "hakka-tofu.html",
+                scale: 0.04
+            }
+        ];
+
+        const config = {
+            radius: 8,
+            itemCount: 9,
+            autoRotateSpeed: 0.8
+        };
+
+        const PHYSICS = {
+            friction: 0.92,
+            restitution: 0.5,
+            springStiffness: 0.05,
+            repulsionStrength: 0.8,
+            colliderRadius: 3.5,
+            interactionRadius: 4.5,
+            predictionFrames: 20,    // N frames prediction
+            maxSteerForce: 0.05,     // Max adjustment force
+            maxSpeedDev: 0.15        // Max speed deviation
+        };
+
         let scene, camera, renderer, controls;
-        let objects = [];
-        let fbxModels = [];
-        let textMesh;
-        let animationId;
-        let isAnimating = true;
-        // 粒子颜色
-        const particleColors = [0xff6b6b, 0xff2e8f, 0xff9021, 0x94ed5c, 0xfeca57, 0xff9ff3, 0xbaeaa9];
-        
-        // 鼠标交互相关变量
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
-        let hoveredModel = null;
-        let originalScale = {};
-        let isHovering = false;
-        
+        let rings = []; // Store multiple rings
+        let allItems = []; // Flat list for collision check
+        let raycaster, mouse;
+        let clickableObjects = [];
+        let particleSystem;
+        let centralTextMesh;
+        let centralTextCollider;
+
         function init() {
-            // 创建场景
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0xff0000, 50, 200);
+            scene.background = null; 
             
-            // 创建相机
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 50);
-            
-            // 创建渲染器
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 16);
+
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0);
+            renderer.setPixelRatio(window.devicePixelRatio);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.getElementById('container').appendChild(renderer.domElement);
-            
-            // 添加控制器
+            renderer.sortObjects = true; // Ensure correct Z-sorting
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.enableZoom = true;
-            controls.autoRotate = true;
-            controls.autoRotateSpeed = 0.5;
-            
-            // 添加光源
-            addLights();
-            
-            // 创建几何体 - 已删除
-            
-            // 添加3D文字
-            create3DText();
-            
-            // 加载FBX模型
-            loadFBXModels();
-            
-            // 添加粒子系统
-            addParticles();
-            
-            // 开始动画
-            animate();
-            
-            // 监听窗口大小变化
-            window.addEventListener('resize', onWindowResize, false);
-            
-            // 添加鼠标事件监听器
-            renderer.domElement.addEventListener('mousemove', onMouseMove, false);
-            renderer.domElement.addEventListener('click', onMouseClick, false);
-            
-            // 添加触摸事件监听器（移动端支持）
-            renderer.domElement.addEventListener('touchstart', onTouchStart, false);
-            renderer.domElement.addEventListener('touchmove', onTouchMove, false);
-            renderer.domElement.addEventListener('touchend', onTouchEnd, false);
-        }
-        
-        function addLights() {
-            // 环境光 - 增强亮度，使用白色光
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            controls.autoRotate = false;
+            controls.autoRotateSpeed = config.autoRotateSpeed;
+            controls.enablePan = false;
+            controls.minDistance = 5;
+            controls.maxDistance = 30;
+            controls.maxPolarAngle = Math.PI / 1.5;
+            controls.minPolarAngle = Math.PI / 3;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
             scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
             
-            // 方向光 - 增强强度
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-            directionalLight.position.set(50, 50, 50);
-            directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
-            scene.add(directionalLight);
-            
-            // 点光源 - 降低强度，避免过度影响颜色
-            const pointLight1 = new THREE.PointLight(0xff6b6b, 0.3, 100);
-            pointLight1.position.set(20, 20, 20);
-            scene.add(pointLight1);
-            
-            const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.3, 100);
-            pointLight2.position.set(-20, -20, 20);
-            scene.add(pointLight2);
+            // Add point lights to highlight copper material
+            const pLight1 = new THREE.PointLight(0xffaa00, 1, 50);
+            pLight1.position.set(-10, 5, 10);
+            scene.add(pLight1);
+
+            const pLight2 = new THREE.PointLight(0x00aaff, 0.5, 50);
+            pLight2.position.set(10, -5, 10);
+            scene.add(pLight2);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            window.addEventListener('click', onMouseClick, false);
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+
+            loadAndCreateOrbitItems();
+            createCentralText();
+            initParticles();
+            animate();
         }
-        
-        // createGeometries函数已删除
-        
-        function create3DText() {
+
+        function createCentralText() {
             const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
-                // 定义文本行和对应的材质
-                const textLines = [
-                    { text: 'WHAT YOU', material: 'white', height: 1 },
-                    { text: 'SEE', material: 'gold', height: 4 },
-                    { text: 'IS WHAT YOU', material: 'white', height: 1 },
-                    { text: 'EAT', material: 'gold', height: 4 }
-                ];
-                
-                // 创建材质
-                const goldMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xCC9900,
-                    shininess: 100,
-                    transparent: true,
-                    opacity: 0.9
+            loader.load('https://unpkg.com/three@0.128.0/examples/fonts/helvetiker_bold.typeface.json', function (font) {
+                const textGeo = new THREE.TextGeometry('WHAT YOU SEE\nIS WHAT YOU EAT', {
+                    font: font,
+                    size: 1.5,
+                    height: 0.2,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.03,
+                    bevelSize: 0.02,
+                    bevelOffset: 0,
+                    bevelSegments: 5
                 });
-                
-                const whiteMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xFFFFFF,
-                    shininess: 100,
-                    transparent: true,
-                    opacity: 0.9
+
+                textGeo.computeBoundingBox();
+                const centerOffset = - 0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
+                const centerOffsetY = - 0.5 * (textGeo.boundingBox.max.y - textGeo.boundingBox.min.y);
+                textGeo.translate(centerOffset, centerOffsetY, 0);
+
+                const copperMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0xb87333,
+                    metalness: 0.9,
+                    roughness: 0.4,
+                    clearcoat: 0.1,
+                    clearcoatRoughness: 0.1,
+                    reflectivity: 1
                 });
+
+                centralTextMesh = new THREE.Mesh(textGeo, copperMaterial);
+                centralTextMesh.position.set(0, 0, 0);
+                centralTextMesh.castShadow = true;
+                centralTextMesh.receiveShadow = true;
+                scene.add(centralTextMesh);
+
+                // Add Collider for Central Text
+                const box = new THREE.Box3().setFromObject(centralTextMesh);
+                const size = new THREE.Vector3();
+                box.getSize(size);
                 
-                const textGroup = new THREE.Group();
-                const lineHeight = 4; // 行间距
-                const totalHeight = (textLines.length - 1) * lineHeight;
-                
-                textLines.forEach((line, index) => {
-                    const textGeometry = new THREE.TextGeometry(line.text, {
-                        font: font,
-                        size: 3,
-                        height: line.height,
-                        curveSegments: 12,
-                        bevelEnabled: true,
-                        bevelThickness: 0.1,
-                        bevelSize: 0.1,
-                        bevelOffset: 0,
-                        bevelSegments: 5
-                    });
-                    
-                    // 计算每行文字的边界框并居中
-                    textGeometry.computeBoundingBox();
-                    const box = textGeometry.boundingBox;
-                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
-                    const centerOffsetZ = -0.5 * (box.max.z - box.min.z);
-                    
-                    // 将几何体水平居中
-                    textGeometry.translate(centerOffsetX, 0, centerOffsetZ);
-                    
-                    // 选择材质
-                    const material = line.material === 'gold' ? goldMaterial : whiteMaterial;
-                    
-                    const textMesh = new THREE.Mesh(textGeometry, material);
-                    
-                    // 设置垂直位置，从上到下排列，整体居中
-                    textMesh.position.y = (totalHeight / 2) - (index * lineHeight);
-                    textMesh.castShadow = true;
-                    textMesh.receiveShadow = true;
-                    
-                    textGroup.add(textMesh);
-                });
-                
-                textGroup.position.set(0, 0, 0);
-                scene.add(textGroup);
-                
-                // 将textGroup赋值给全局变量以便后续使用
-                textMesh = textGroup;
+                // Invisible collider for physics
+                const geometry = new THREE.BoxGeometry(size.x + 1, size.y + 1, size.z + 1);
+                centralTextCollider = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
+                centralTextCollider.position.copy(centralTextMesh.position);
+                scene.add(centralTextCollider);
             });
         }
-        
-        function loadFBXModels() {
-            console.log('开始加载FBX模型...');
-            const loader = new THREE.FBXLoader();
-            const modelPaths = ['models/1煲仔饭.fbx', 'models/2健康排骨.fbx', 'models/3辣椒排骨.fbx', 'models/c花园豆腐.fbx', 'models/c梅干菜肉.fbx', 'models/c肉包.fbx', 'models/c粉丝虾.fbx'];
-            const modelLinks = ['claypot.html', 'food.html', 'food.html', 'food.html', 'food.html', 'food.html', 'food.html'];
+
+        function loadAndCreateOrbitItems() {
+            // No single group anymore, using rings array
             
-            modelPaths.forEach((path, index) => {
-                console.log('正在加载模型:', path);
-                loader.load(path, function(object) {
-                    console.log('模型加载成功:', path, object);
-                    
-                    // 设置模型大小 - 缩小模型
-                    object.scale.setScalar(0.08);
-                    
-                    // 设置模型旋转 - x轴旋转80度让顶部面向屏幕
-                    object.rotation.x = Math.PI * 40 / 180; // 80度转换为弧度
-                    
-                    // 设置初始位置（围绕中心的圆形排列）
-                    const angle = (index / modelPaths.length) * Math.PI * 2;
-                    const radius = 30;
-                    object.position.x = Math.cos(angle) * radius;
-                    object.position.z = Math.sin(angle) * radius;
-                    object.position.y = 0;
-                    
-                    console.log('模型位置设置为:', object.position);
-                    
-                    // 添加自定义属性用于旋转动画
-                    object.userData = {
-                        angle: angle,
-                        radius: radius,
-                        rotationSpeed: 0.002,
-                        originalScale: 0.08,
-                        link: modelLinks[index] || 'food.html',
-                        isHovered: false
-                    };
-                    
-                    // 保存原始缩放值
-                    originalScale[object.uuid] = 0.08;
-                    
-                    object.castShadow = true;
-                    object.receiveShadow = true;
-                    
-                    // 遍历模型的所有子对象，设置材质
-                    object.traverse(function(child) {
+            const loader = new THREE.FBXLoader();
+            const modelsCache = {};
+            let processedModels = 0;
+            const totalModels = foodItems.length;
+
+            if (totalModels === 0) {
+                buildOrbit(modelsCache);
+                hideLoading();
+                return;
+            }
+
+            foodItems.forEach(item => {
+                loader.load(item.model, (object) => {
+                    object.traverse(child => {
                         if (child.isMesh) {
-                            console.log('找到网格:', child);
                             child.castShadow = true;
                             child.receiveShadow = true;
                             if (child.material) {
-                                // 处理单个材质
-                                if (!Array.isArray(child.material)) {
-                                    // 修复UV映射问题
-                                    if (child.material.map) {
-                                        // FBX模型通常需要flipY为true来正确显示UV
-                                        child.material.map.flipY = true;
-                                        child.material.map.wrapS = THREE.RepeatWrapping;
-                                        child.material.map.wrapT = THREE.RepeatWrapping;
-                                        child.material.map.needsUpdate = true;
-                                    }
-                                    // 处理法线贴图
-                                    if (child.material.normalMap) {
-                                        child.material.normalMap.flipY = true;
-                                        child.material.normalMap.wrapS = THREE.RepeatWrapping;
-                                        child.material.normalMap.wrapT = THREE.RepeatWrapping;
-                                        child.material.normalMap.needsUpdate = true;
-                                    }
-                                    // 处理粗糙度贴图
-                                    if (child.material.roughnessMap) {
-                                        child.material.roughnessMap.flipY = true;
-                                        child.material.roughnessMap.wrapS = THREE.RepeatWrapping;
-                                        child.material.roughnessMap.wrapT = THREE.RepeatWrapping;
-                                        child.material.roughnessMap.needsUpdate = true;
-                                    }
-                                    child.material.needsUpdate = true;
-                                } else {
-                                    // 处理材质数组
-                                    child.material.forEach(mat => {
-                                        if (mat.map) {
-                                            mat.map.flipY = true;
-                                            mat.map.wrapS = THREE.RepeatWrapping;
-                                            mat.map.wrapT = THREE.RepeatWrapping;
-                                            mat.map.needsUpdate = true;
-                                        }
-                                        if (mat.normalMap) {
-                                            mat.normalMap.flipY = true;
-                                            mat.normalMap.wrapS = THREE.RepeatWrapping;
-                                            mat.normalMap.wrapT = THREE.RepeatWrapping;
-                                            mat.normalMap.needsUpdate = true;
-                                        }
-                                        if (mat.roughnessMap) {
-                                            mat.roughnessMap.flipY = true;
-                                            mat.roughnessMap.wrapS = THREE.RepeatWrapping;
-                                            mat.roughnessMap.wrapT = THREE.RepeatWrapping;
-                                            mat.roughnessMap.needsUpdate = true;
-                                        }
-                                        mat.needsUpdate = true;
-                                    });
-                                }
+                                const mats = Array.isArray(child.material) ? child.material : [child.material];
+                                mats.forEach(mat => {
+                                    if (mat.map) mat.map.flipY = true;
+                                    if (mat.normalMap) mat.normalMap.flipY = true;
+                                    if (mat.roughnessMap) mat.roughnessMap.flipY = true;
+                                });
                             }
                         }
                     });
                     
-                    scene.add(object);
-                    fbxModels.push(object);
-                    console.log('模型已添加到场景，当前FBX模型数量:', fbxModels.length);
-                }, function(progress) {
-                    if (progress.total > 0) {
-                        console.log('加载进度 ' + path + ':', (progress.loaded / progress.total * 100) + '%');
-                    }
-                }, function(error) {
-                    console.error('加载FBX模型失败:', path, error);
-                    // 如果FBX加载失败，创建一个替代的几何体
-                    const geometry = new THREE.BoxGeometry(2, 2, 2);
-                    const material = new THREE.MeshPhongMaterial({ color: 0xff6b6b });
-                    const cube = new THREE.Mesh(geometry, material);
+                    // Normalize Scale and Center
+                    const box = new THREE.Box3().setFromObject(object);
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scaleFactor = 4 / maxDim; // Normalize to ~4 units
+                    object.scale.setScalar(scaleFactor);
                     
-                    // 设置模型旋转 - x轴旋转80度让顶部面向屏幕
-                    cube.rotation.x = Math.PI * 1 / 180; // 80度转换为弧度
+                    modelsCache[item.model] = object;
+                    processedModels++;
+                    checkCompletion();
+                }, undefined, (err) => {
+                    console.error('Failed to load', item.model, err);
+                    processedModels++;
+                    checkCompletion();
+                });
+            });
+
+            function checkCompletion() {
+                if (processedModels === totalModels) {
+                    buildOrbit(modelsCache);
+                    hideLoading();
+                }
+            }
+        }
+
+        function hideLoading() {
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) {
+                loadingEl.style.opacity = 0;
+                setTimeout(() => loadingEl.style.display = 'none', 500);
+            }
+        }
+
+        function buildOrbit(modelsCache) {
+            // Multi-ring configuration
+            const ringConfigs = [
+                { radius: 10, speed: 0.002, axis: new THREE.Vector3(0, 1, 0.2).normalize(), items: [] },
+                { radius: 14, speed: -0.0015, axis: new THREE.Vector3(0.2, 1, -0.1).normalize(), items: [] },
+                { radius: 18, speed: 0.001, axis: new THREE.Vector3(-0.1, 1, 0.3).normalize(), items: [] }
+            ];
+
+            // Assign items to rings
+            for (let i = 0; i < config.itemCount; i++) {
+                const dataIndex = i % foodItems.length;
+                const ringIndex = i % ringConfigs.length;
+                ringConfigs[ringIndex].items.push(foodItems[dataIndex]);
+            }
+
+            // Create rings
+            ringConfigs.forEach((ringConf, index) => {
+                const ringGroup = new THREE.Group();
+                
+                const tiltContainer = new THREE.Group();
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), ringConf.axis);
+                tiltContainer.setRotationFromQuaternion(quaternion);
+                
+                scene.add(tiltContainer);
+                
+                const rotatingRing = new THREE.Group();
+                rotatingRing.userData = { rotationSpeed: ringConf.speed };
+                tiltContainer.add(rotatingRing);
+                rings.push(rotatingRing);
+
+                const itemsCount = ringConf.items.length;
+                ringConf.items.forEach((data, i) => {
+                    if (!modelsCache[data.model]) return;
+
+                    const model = modelsCache[data.model].clone();
                     
-                    const angle = (index / modelPaths.length) * Math.PI * 2;
-                    const radius = 30;
-                    cube.position.x = Math.cos(angle) * radius;
-                    cube.position.z = Math.sin(angle) * radius;
-                    cube.position.y = 0;
-                    
-                    cube.userData = {
-                        angle: angle,
-                        radius: radius,
-                        rotationSpeed: 0.01,
-                        originalScale: 1,
-                        link: modelLinks[index] || 'food.html',
-                        isHovered: false
+                    // Distribute along the ring
+                    const angle = (i / itemsCount) * Math.PI * 2;
+                    const x = Math.sin(angle) * ringConf.radius;
+                    const z = Math.cos(angle) * ringConf.radius;
+
+                    const itemContainer = new THREE.Group();
+                    // Store initial orbit position
+                    itemContainer.userData = {
+                        orbitPos: new THREE.Vector3(x, 0, z),
+                        velocity: new THREE.Vector3(0, 0, 0),
+                        link: data.link,
+                        rotationAxis: new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize(),
+                        rotationSpeed: 0.002 + Math.random() * 0.003,
+                        radius: PHYSICS.colliderRadius // For collision
                     };
+                    itemContainer.position.copy(itemContainer.userData.orbitPos);
                     
-                    // 保存原始缩放值
-                    originalScale[cube.uuid] = 1;
-                    
-                    scene.add(cube);
-                    fbxModels.push(cube);
-                    console.log('已添加替代几何体');
+                    itemContainer.lookAt(0, 0, 0);
+
+                    model.position.y = -1;
+                    model.rotation.y = Math.PI;
+
+                    itemContainer.add(model);
+
+                    const labelTexture = createLabelTexture(data.name);
+                    const labelMaterial = new THREE.SpriteMaterial({ 
+                        map: labelTexture, 
+                        transparent: true,
+                        depthWrite: false // Fix Z-fighting/sorting with transparent objects
+                    });
+                    const labelSprite = new THREE.Sprite(labelMaterial);
+                    labelSprite.position.set(0, 3.5, 0); // Raised slightly higher
+                    labelSprite.scale.set(4, 2, 1);
+                    labelSprite.renderOrder = 999; // Ensure text is always on top of models
+                    itemContainer.add(labelSprite);
+
+                    // Add debug collider (invisible)
+                    // const debugGeo = new THREE.SphereGeometry(PHYSICS.colliderRadius, 16, 16);
+                    // const debugMat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true, visible: false });
+                    // const debugSphere = new THREE.Mesh(debugGeo, debugMat);
+                    // itemContainer.add(debugSphere);
+
+                    rotatingRing.add(itemContainer);
+                    allItems.push(itemContainer);
                 });
             });
         }
-        
-        function addParticles() {
-            const particleCount = 1000;
-            const particles = new THREE.BufferGeometry();
+
+        function createLabelTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.font = 'bold 40px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = "rgba(0,0,0,0.8)";
+            ctx.shadowBlur = 10;
+            
+            const words = text.split(' ');
+            let line1 = '', line2 = '';
+            
+            if (words.length > 2) {
+                line1 = words.slice(0, 2).join(' ');
+                line2 = words.slice(2).join(' ');
+            } else {
+                line1 = text;
+            }
+            
+            ctx.fillText(line1, 256, 100);
+            if (line2) {
+                ctx.font = '30px Arial';
+                ctx.fillStyle = '#feca57';
+                ctx.fillText(line2, 256, 160);
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function initParticles() {
+            // ... (Same as before, simplified to avoid duplication if main.js covers it, but keeping for index specific look)
+            // Assuming main.js handles global particles, we can skip or keep. 
+            // The user didn't ask to remove it, but main.js has one too.
+            // Let's keep the existing one in index.html as it might be specific.
+            const particleColors = [0xff6b6b, 0xff2e8f, 0xff9021, 0x94ed5c, 0xfeca57, 0xff9ff3, 0xbaeaa9];
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 600;
             const positions = new Float32Array(particleCount * 3);
             const colors = new Float32Array(particleCount * 3);
-            
+
             for (let i = 0; i < particleCount; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 200;
-                positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
-                
+                positions[i * 3] = (Math.random() - 0.5) * 40;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+
                 const color = new THREE.Color(particleColors[Math.floor(Math.random() * particleColors.length)]);
                 colors[i * 3] = color.r;
                 colors[i * 3 + 1] = color.g;
                 colors[i * 3 + 2] = color.b;
             }
-            
-            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
             const particleMaterial = new THREE.PointsMaterial({
-                size: 2,
+                size: 0.2,
                 vertexColors: true,
                 transparent: true,
                 opacity: 0.6
             });
-            
-            const particleSystem = new THREE.Points(particles, particleMaterial);
-            scene.add(particleSystem);
-            objects.push(particleSystem);
-        }
-        
-        function animate() {
-            if (isAnimating) {
-                animationId = requestAnimationFrame(animate);
-            }
-            
-            const time = Date.now() * 0.001;
-            
-            // 只有在非悬停状态下才执行动画
-            if (!isHovering) {
-                // 更新粒子系统动画
-                objects.forEach((obj, index) => {
-                    if (obj.type === 'Points') {
-                        // 粒子系统旋转
-                        obj.rotation.y += 0.001;
-                    }
-                });
-                
-                // 更新3D文字动画
-                if (textMesh) {
-                    // 让文字始终面向相机
-                    textMesh.lookAt(camera.position);
-                    // 保持在中心位置，只有轻微的上下飘浮
-                    textMesh.position.y = Math.sin(time * 0.5) * 1;
-                }
-                
-                // 更新FBX模型围绕文字旋转
-                fbxModels.forEach((model, index) => {
-                    if (model.userData && !model.userData.isHovered) {
-                        model.userData.angle += model.userData.rotationSpeed;
-                        model.position.x = Math.cos(model.userData.angle) * model.userData.radius;
-                        model.position.z = Math.sin(model.userData.angle) * model.userData.radius;
-                        model.position.y = Math.sin(time * 0.3 + index) * 6;
-                        
-                        // 模型自身旋转
-                        model.rotation.y += 0.01;
-                    }
-                });
-                
-                // 更新控制器自动旋转
-                if (controls.autoRotate) {
-                    controls.update();
-                }
-            } else {
-                // 悬停状态下仍需要更新控制器但不自动旋转
-                const wasAutoRotate = controls.autoRotate;
-                controls.autoRotate = false;
-                controls.update();
-                controls.autoRotate = wasAutoRotate;
-            }
-            
-            // 渲染
-            renderer.render(scene, camera);
-        }
-        
-        function toggleAnimation() {
-            isAnimating = !isAnimating;
-            if (isAnimating) {
-                animate();
-            } else {
-                cancelAnimationFrame(animationId);
-            }
-        }
-        
 
-        
-        function resetCamera() {
-            camera.position.set(0, 0, 50);
-            controls.reset();
+            particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particleSystem);
         }
-        
-        // 汉堡菜单功能
-        function toggleMenu() {
-            const hamburgerBtn = document.querySelector('.hamburger-btn');
-            const menuDropdown = document.getElementById('menuDropdown');
-            
-            hamburgerBtn.classList.toggle('active');
-            menuDropdown.classList.toggle('show');
-        }
-        
-        // 点击页面其他地方关闭菜单
-        document.addEventListener('click', function(event) {
-            const hamburgerMenu = document.querySelector('.hamburger-menu');
-            const menuDropdown = document.getElementById('menuDropdown');
-            const hamburgerBtn = document.querySelector('.hamburger-btn');
-            
-            if (!hamburgerMenu.contains(event.target)) {
-                menuDropdown.classList.remove('show');
-                hamburgerBtn.classList.remove('active');
-            }
-        });
-        
-        // 阻止菜单内部点击事件冒泡
-        document.querySelector('.hamburger-menu').addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-        
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-        
-        // 统一的坐标处理函数
-        function getEventCoordinates(event) {
-            let clientX, clientY;
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             
-            if (event.touches && event.touches.length > 0) {
-                // 触摸事件
-                clientX = event.touches[0].clientX;
-                clientY = event.touches[0].clientY;
-            } else if (event.changedTouches && event.changedTouches.length > 0) {
-                // touchend事件
-                clientX = event.changedTouches[0].clientX;
-                clientY = event.changedTouches[0].clientY;
-            } else {
-                // 鼠标事件
-                clientX = event.clientX;
-                clientY = event.clientY;
-            }
-            
-            return {
-                x: (clientX / window.innerWidth) * 2 - 1,
-                y: -(clientY / window.innerHeight) * 2 + 1
-            };
-        }
-        
-        // 统一的交互检测函数
-        function checkModelIntersection(event) {
-            const coords = getEventCoordinates(event);
-            mouse.x = coords.x;
-            mouse.y = coords.y;
-            
-            // 更新射线
+            document.body.style.cursor = 'default';
             raycaster.setFromCamera(mouse, camera);
             
-            // 检测与FBX模型的交集
-            const intersects = raycaster.intersectObjects(fbxModels, true);
+            const interactiveItems = [];
+            rings.forEach(ring => {
+                interactiveItems.push(...ring.children);
+            });
+            
+            const intersects = raycaster.intersectObjects(interactiveItems, true);
             
             if (intersects.length > 0) {
-                // 找到最近的模型
-                let targetModel = intersects[0].object;
-                while (targetModel.parent && !fbxModels.includes(targetModel)) {
-                    targetModel = targetModel.parent;
-                }
-                
-                if (fbxModels.includes(targetModel)) {
-                    return targetModel;
-                }
-            }
-            
-            return null;
-        }
-        
-        // 鼠标移动事件处理
-        function onMouseMove(event) {
-            const targetModel = checkModelIntersection(event);
-            
-            if (targetModel) {
-                if (hoveredModel !== targetModel) {
-                    // 恢复之前悬停的模型
-                    if (hoveredModel) {
-                        resetModelState(hoveredModel);
+                let target = intersects[0].object;
+                while (target) {
+                    if (target.userData && target.userData.link) {
+                        document.body.style.cursor = 'pointer';
+                        return;
                     }
-                    
-                    // 设置新的悬停模型
-                    hoveredModel = targetModel;
-                    setModelHovered(hoveredModel);
+                    target = target.parent;
                 }
-                
-                // 设置鼠标样式
-                renderer.domElement.style.cursor = 'pointer';
-                isHovering = true;
-            } else {
-                // 没有悬停任何模型
-                if (hoveredModel) {
-                    resetModelState(hoveredModel);
-                    hoveredModel = null;
-                }
-                renderer.domElement.style.cursor = 'default';
-                isHovering = false;
-            }
-        }
-        
-        // 鼠标点击事件处理
-        function onMouseClick(event) {
-            if (hoveredModel) {
-                // 根据模型跳转到对应页面
-                navigateToModel(hoveredModel);
-            }
-        }
-        
-        // 触摸开始事件处理（移动端）
-        function onTouchStart(event) {
-            event.preventDefault(); // 防止默认的触摸行为
-            
-            const targetModel = checkModelIntersection(event);
-            
-            if (targetModel) {
-                // 恢复之前悬停的模型
-                if (hoveredModel && hoveredModel !== targetModel) {
-                    resetModelState(hoveredModel);
-                }
-                
-                // 设置新的悬停模型
-                hoveredModel = targetModel;
-                setModelHovered(hoveredModel);
-                isHovering = true;
-            }
-        }
-        
-        // 触摸移动事件处理（移动端）
-        function onTouchMove(event) {
-            event.preventDefault(); // 防止页面滚动
-            
-            const targetModel = checkModelIntersection(event);
-            
-            if (targetModel) {
-                if (hoveredModel !== targetModel) {
-                    // 恢复之前悬停的模型
-                    if (hoveredModel) {
-                        resetModelState(hoveredModel);
-                    }
-                    
-                    // 设置新的悬停模型
-                    hoveredModel = targetModel;
-                    setModelHovered(hoveredModel);
-                }
-                isHovering = true;
-            } else {
-                // 没有触摸任何模型
-                if (hoveredModel) {
-                    resetModelState(hoveredModel);
-                    hoveredModel = null;
-                }
-                isHovering = false;
-            }
-        }
-        
-        // 触摸结束事件处理（移动端）
-        function onTouchEnd(event) {
-            event.preventDefault();
-            
-            // 检查触摸结束时是否还在模型上
-            const targetModel = checkModelIntersection(event);
-            
-            if (targetModel && hoveredModel === targetModel) {
-                // 如果触摸结束时还在同一个模型上，则执行点击跳转
-                navigateToModel(targetModel);
-            }
-            
-            // 重置悬停状态
-            if (hoveredModel) {
-                resetModelState(hoveredModel);
-                hoveredModel = null;
-            }
-            isHovering = false;
-        }
-        
-        function navigateToModel(model) {
-            if (model && model.userData) {
-                const target = model.userData.link || 'food.html';
-                window.location.href = target;
             }
         }
 
-        // 设置模型为悬停状态
-        function setModelHovered(model) {
-            if (model.userData) {
-                model.userData.isHovered = true;
-                
-                // 放大模型
-                const targetScale = model.userData.originalScale * 1.2;
-                model.scale.setScalar(targetScale);
-                
-                // 添加发光效果
-                model.traverse(function(child) {
-                    if (child.isMesh && child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(mat => {
-                                mat.emissive = new THREE.Color(0x444444);
-                                mat.needsUpdate = true;
-                            });
-                        } else {
-                            child.material.emissive = new THREE.Color(0x444444);
-                            child.material.needsUpdate = true;
-                        }
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            
+            const interactiveItems = [];
+            rings.forEach(ring => {
+                interactiveItems.push(...ring.children);
+            });
+            
+            const intersects = raycaster.intersectObjects(interactiveItems, true);
+
+            if (intersects.length > 0) {
+                let target = intersects[0].object;
+                while (target) {
+                    if (target.userData && target.userData.link) {
+                        window.location.href = target.userData.link;
+                        return;
                     }
-                });
+                    target = target.parent;
+                }
             }
         }
-        
-        // 重置模型状态
-        function resetModelState(model) {
-            if (model.userData) {
-                model.userData.isHovered = false;
+
+        function updatePhysics() {
+            const startTime = performance.now();
+
+            // 1. Snapshot State & Pre-calculate World Data
+            const state = allItems.map(item => {
+                const worldPos = new THREE.Vector3();
+                item.getWorldPosition(worldPos);
                 
-                // 恢复原始大小
-                model.scale.setScalar(model.userData.originalScale);
+                // Get Parent (Ring) Orbit Data
+                // item.parent is RotatingRing. item.parent.parent is TiltContainer.
+                const tiltContainer = item.parent.parent;
+                const axis = new THREE.Vector3(0, 1, 0).applyQuaternion(tiltContainer.quaternion).normalize();
+                const orbitSpeed = item.parent.userData.rotationSpeed || 0.001;
                 
-                // 移除发光效果
-                model.traverse(function(child) {
-                    if (child.isMesh && child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(mat => {
-                                mat.emissive = new THREE.Color(0x000000);
-                                mat.needsUpdate = true;
-                            });
-                        } else {
-                            child.material.emissive = new THREE.Color(0x000000);
-                            child.material.needsUpdate = true;
+                // Get Parent World Quaternion for transforming forces to Parent Space (where position is defined)
+                const parentWorldQuat = new THREE.Quaternion();
+                item.parent.getWorldQuaternion(parentWorldQuat);
+
+                return {
+                    item: item,
+                    pos: worldPos,
+                    axis: axis,
+                    orbitSpeed: orbitSpeed,
+                    parentWorldQuat: parentWorldQuat,
+                    localVel: item.userData.velocity // Reference
+                };
+            });
+
+            // 2. Predictive Path Planning (Collision Avoidance)
+            // Complexity: O(N_items^2 * Prediction_Frames) 
+            // 9 items * 9 items * 20 frames = ~1600 checks (Very Fast, <1ms)
+            
+            for (let i = 0; i < state.length; i++) {
+                const objA = state[i];
+                let steerForce = new THREE.Vector3();
+                let collisionDetected = false;
+
+                // Predict Future N Frames
+                // Step size 2 for optimization without losing much precision
+                for (let t = 1; t <= PHYSICS.predictionFrames; t += 2) { 
+                    // Predict A Position: Orbit Rotation + Local Velocity Drift
+                    // Formula: P_future = RotateAroundAxis(P_current, axis, speed*t) + V_local_world * t
+                    
+                    const timeOffset = t; // Arbitrary time unit
+                    
+                    // 1. Orbit Motion Prediction
+                    const angleA = objA.orbitSpeed * timeOffset;
+                    const predictedPosA = objA.pos.clone().applyAxisAngle(objA.axis, angleA);
+                    
+                    // 2. Local Velocity Prediction (Drift)
+                    // Transform local velocity to world, then add
+                    const localVelWorld = objA.localVel.clone().applyQuaternion(objA.parentWorldQuat);
+                    predictedPosA.add(localVelWorld.multiplyScalar(timeOffset));
+
+                    // Check vs Other Items
+                    for (let j = 0; j < state.length; j++) {
+                        if (i === j) continue;
+                        const objB = state[j];
+                        
+                        // Predict B Position
+                        const angleB = objB.orbitSpeed * timeOffset;
+                        const predictedPosB = objB.pos.clone().applyAxisAngle(objB.axis, angleB);
+                        const localVelWorldB = objB.localVel.clone().applyQuaternion(objB.parentWorldQuat);
+                        predictedPosB.add(localVelWorldB.multiplyScalar(timeOffset));
+
+                        const dist = predictedPosA.distanceTo(predictedPosB);
+                        if (dist < PHYSICS.interactionRadius) {
+                            // Potential Collision found at time t
+                            // Steering Force: Separation
+                            const dir = predictedPosA.clone().sub(predictedPosB).normalize();
+                            
+                            // Weight by proximity in time (closer in time = more urgent)
+                            // Early avoidance is smoother (Minimum Adjustment Principle)
+                            const urgency = 1.0 - (t / PHYSICS.predictionFrames);
+                            steerForce.add(dir.multiplyScalar(urgency * PHYSICS.repulsionStrength));
+                            collisionDetected = true;
                         }
                     }
-                });
+
+                    // Check vs Central Text
+                    if (centralTextCollider) {
+                        // Use a safe radius for Central Text (Approx 6.0 units)
+                        if (predictedPosA.length() < 6.0) {
+                             const dir = predictedPosA.clone().normalize();
+                             const urgency = 1.0 - (t / PHYSICS.predictionFrames);
+                             steerForce.add(dir.multiplyScalar(urgency * PHYSICS.repulsionStrength * 2));
+                             collisionDetected = true;
+                        }
+                    }
+                    
+                    if (collisionDetected) break; // React to first imminent threat
+                }
+
+                // 3. Apply Avoidance Forces with Constraints
+                if (collisionDetected) {
+                    // Transform World Steer Force back to Parent Space
+                    const localSteer = steerForce.clone().applyQuaternion(objA.parentWorldQuat.clone().invert());
+                    
+                    // Constraint: Max Force (Smoothness) - "Minimum Adjustment"
+                    localSteer.clampLength(0, PHYSICS.maxSteerForce);
+                    
+                    // Apply to velocity
+                    objA.localVel.add(localSteer);
+                }
+            }
+
+            // 4. Integration & Spring Dynamics
+            state.forEach(obj => {
+                // Spring force (Return to orbit slot)
+                // Hooke's Law: F = -k * x
+                const displacement = obj.item.position.clone().sub(obj.item.userData.orbitPos);
+                const springForce = displacement.multiplyScalar(-PHYSICS.springStiffness);
+                obj.localVel.add(springForce);
+
+                // Damping (Friction)
+                obj.localVel.multiplyScalar(PHYSICS.friction);
+
+                // Constraint: Speed Change Limit 
+                // "Ensure speed change is within 15%"
+                // We clamp the max velocity deviation to prevent explosions
+                obj.localVel.clampLength(0, 0.5); 
+
+                // Update Position
+                obj.item.position.add(obj.localVel);
+            });
+
+            // Performance Monitor
+            const elapsed = performance.now() - startTime;
+            if (elapsed > 10) {
+                // console.warn("Physics took too long:", elapsed);
             }
         }
-        
-        // 初始化
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Rotate rings
+            rings.forEach(ring => {
+                ring.rotation.y += ring.userData.rotationSpeed;
+                
+                // Rotate items inside
+                ring.children.forEach(item => {
+                    if (item.userData.rotationAxis) {
+                        item.rotateOnAxis(item.userData.rotationAxis, item.userData.rotationSpeed);
+                    }
+                });
+            });
+
+            updatePhysics();
+
+            if (particleSystem) {
+                particleSystem.rotation.y += 0.0005;
+            }
+
+            renderer.render(scene, camera);
+        }
+
         init();
     </script>
 </body>

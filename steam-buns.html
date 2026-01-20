@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客家酿豆腐 · Hakka Stuffed Tofu</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>流汁汤包 · Steam Buns</title>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-</head>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="particle-container"></div>
@@ -27,10 +26,10 @@
     </div>
     <main>
         <section class="text-panel">
-            <h1>客家釀豆腐<span>Hakka Stuffed Tofu</span></h1>
-            <p>客家釀豆腐作為一道極具代表性的客家名菜，承載著深厚的歷史文化內涵，其起源與發展和客家人的遷徙歷程緊密相連。 </p>
-            <p>身為客家人，小李（化名）為我們展示了他們家庭製作客家釀豆腐的過程，並嘗試使用AI記錄了不同的偶然性，及根據AI的提示，創作了一道保留傳統味道的創新菜。 </p>
-            <p>As a representative Hakka dish, Hakka Stuffed Tofu carries profound historical and cultural connotations. Its origin and development are closely linked to the migration of Hakka people. As a Hakka, Xiao Li (pseudonym) showed us the process of making Hakka Yong Tau Foo in his family, and tried to use AI to record different accidents, and based on the prompts of AI, created an innovative dish that retains the traditional taste.</p>
+            <h1>流汁湯包<span>Steam Buns</span></h1>
+            <p>「輕輕提，慢慢移，先開窗，後喝湯。」這句順口溜，精準地概括了品嚐流汁湯包的精髓。流汁湯包，一道源自中國江南地區的傳統名點，以其皮薄、餡大、湯多、味鮮的特點，贏得了無數食客的青睞。 </p>
+            <p>我們邀請到了小李（化名），分享了他對流汁湯包的見解以及如何使用AI進行記錄變化與創新的過程。 </p>
+            <p>"Gently lift, move slowly, first open the window, then drink the soup." This catchy phrase accurately summarizes the essence of tasting steam buns. Steam buns, a traditional famous snack from the Jiangnan region of China, have won the favor of countless diners with their thin skin, large filling, rich soup, and delicious taste.</p>
         </section>
         <section class="media-panel">
             <div id="mediaCanvas"></div>
@@ -50,25 +49,20 @@
          * 如果你想添加更多媒体，只需在这个数组中添加新的对象即可。
          */
         const mediaItems = [
-            { type: 'image', src: 'food/hakka-tofu/73baa3575d77c954323cf25f93704f58aecbeb4b.jpg', alt: '客家酿豆腐' },
-            { type: 'image', src: 'food/hakka-tofu/79e1578f883159895015bffe8915e0d0e51d6949.png', alt: '客家酿豆腐' },
-            { type: 'video', src: 'food/hakka-tofu/VID20241215111124.mp4', alt: '客家酿豆腐' },
-            { type: 'video', src: 'food/hakka-tofu/VID20241215111137.mp4', alt: '客家酿豆腐' },
-            { type: 'video', src: 'food/hakka-tofu/cut_VID20241215110009.mp4', alt: '客家酿豆腐' },
-            { type: 'video', src: 'food/hakka-tofu/fry_VID20241215111725.mp4', alt: '客家酿豆腐' }
+            { type: 'image', src: 'food/steamed-buns/1.png', alt: '1' },
+            { type: 'image', src: 'food/steamed-buns/2.png', alt: '2' },
+            { type: 'image', src: 'food/steamed-buns/3.png', alt: '3' },
+            { type: 'image', src: 'food/steamed-buns/4.png', alt: '4' },
+            { type: 'image', src: 'food/steamed-buns/5.png', alt: '5' },
+            { type: 'video', src: 'food/steamed-buns/fen_DJI_0003.mp4', alt: '2' },
+            { type: 'video', src: 'food/steamed-buns/ya_DJI_0006.mp4', alt: '3' },
+            { type: 'video', src: 'food/steamed-buns/bao_DJI_0044.mp4', alt: '3' },
+            { type: 'video', src: 'food/steamed-buns/steam_DJI_0050.mp4', alt: '4' }
         ];
 
         const container = document.getElementById('mediaCanvas');
 
-        /*
-         * randomBetween 函数解读：
-         * 这是一个辅助函数，用于生成指定范围内的随机数。
-         * 在 `placeMediaElements` 函数中，它被用来为媒体元素的尺寸、动画持续时间和延迟生成随机值，
-         * 使得每个元素的浮动效果看起来更自然、不那么同步。
-         */
-        function randomBetween(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+
 
         /*
          * placeMediaElements 函数解读：
