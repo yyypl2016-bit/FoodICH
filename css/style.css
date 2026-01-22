@@ -1,14 +1,26 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
 :root {
-    --bg-gradient: radial-gradient(circle at center, #2b1d1d 0%, #000000 100%);
-    --text-color: #ffffff;
-    --text-muted: rgba(255, 255, 255, 0.75);
-    --glass-bg: rgba(255, 255, 255, 0.12);
-    --glass-border: rgba(255, 255, 255, 0.35);
-    --glass-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
-    --nav-bg: rgba(255, 255, 255, 0.1);
-    --nav-border: rgba(255, 255, 255, 0.2);
-    --font-primary: 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
-    --accent-color: #feca57;
+    /* Color Scheme */
+    --primary-color: #E85F5C; /* Cantonese Fire Red */
+    --secondary-color: #F5F5DC; /* Rice White */
+    --tertiary-color: #D2B48C; /* Light Brown */
+    --text-main: #2C1810; /* Dark Brown for text */
+    --text-muted: #5D4037;
+    --highlight-bg: rgba(232, 95, 92, 0.1);
+    
+    /* Existing variables adapted */
+    --glass-bg: rgba(255, 255, 255, 0.85); /* Increased opacity for readability */
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(44, 24, 16, 0.15);
+    
+    /* Typography */
+    --font-serif: 'Noto Serif SC', 'Source Han Serif SC', serif;
+    --font-sans: 'Noto Sans SC', 'Alibaba PuHuiTi', sans-serif;
+    
+    /* Background */
+    --bg-gradient: radial-gradient(circle at center, #F9F3E3 0%, #E6D5B8 100%);
 }
 
 * {
@@ -17,70 +29,161 @@
 
 body {
     margin: 0;
-    min-height: 100vh;
-    font-family: var(--font-primary);
+    padding: 0;
+    font-family: var(--font-sans);
     background: var(--bg-gradient);
-    color: var(--text-color);
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+    /* Subtle watermark pattern */
+    background-image: 
+        radial-gradient(var(--secondary-color) 20%, transparent 20%),
+        var(--bg-gradient);
+    background-size: 20px 20px, 100% 100%;
 }
 
-/* -----------------------
-   Global Styles
-   ----------------------- */
-::selection {
-    background: var(--accent-color);
-    color: #000;
+/* Typography Hierarchy */
+h1, h2, h3 {
+    font-family: var(--font-serif);
+    color: var(--text-main);
+    font-weight: 700;
 }
 
-::-webkit-scrollbar {
-    width: 10px;
+h1 {
+    font-size: clamp(24px, 4vw, 32px);
+    margin-bottom: 0.5em;
 }
 
-::-webkit-scrollbar-track {
-    background: #1a1a1a;
+h2 {
+    font-size: clamp(20px, 3vw, 28px);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-top: 40px;
+    display: inline-block;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #4a4a4a;
-    border-radius: 5px;
+h3 {
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: var(--primary-color);
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-color);
+p {
+    font-size: clamp(14px, 1.2vw, 16px);
+    margin-bottom: 1.5em;
+    text-align: justify;
 }
 
-/* Wooden Border Style */
+/* Ingredients Card Style */
+.ingredients-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.ingredient-card {
+    background: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid var(--tertiary-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: var(--font-serif);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(232, 95, 92, 0.15);
+    border-color: var(--primary-color);
+}
+
+.ingredient-icon {
+    color: var(--primary-color);
+    font-size: 1.2em;
+}
+
+/* Cooking Steps */
+.step-list {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+}
+
+.step-item {
+    position: relative;
+    padding: 20px 20px 20px 50px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 8px;
+    border-left: 4px solid var(--tertiary-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.step-item::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: var(--tertiary-color);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.step-item:hover, .step-item.active {
+    background: white;
+    border-left-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.step-item:hover::before, .step-item.active::before {
+    background: var(--primary-color);
+}
+
+.step-highlight {
+    color: var(--primary-color);
+    font-weight: bold;
+    background: var(--highlight-bg);
+    padding: 0 4px;
+    border-radius: 2px;
+}
+
+/* Wooden Border Style Refined */
 .wooden-border {
     position: relative;
-    border: 2px solid transparent !important; /* 2px width */
-    background-clip: padding-box !important; /* Ensure content bg stays inside */
-    border-radius: 4px !important; /* Force 4px radius */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    border: 1px solid #D2B48C !important; /* Lighter border */
+    background: #ffffff !important; /* Pure white for max contrast */
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(44, 24, 16, 0.08);
     transition: transform 0.3s ease;
 }
 
 .wooden-border::before {
     content: "";
     position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px; /* Match 2px width */
-    /* Real wood texture with Dark Brown (#5E3B1E) overlay */
-    background-image: linear-gradient(rgba(94, 59, 30, 0.85), rgba(94, 59, 30, 0.85)), url('../images/wood-texture.jpg');
-    background-size: cover;
-    background-position: center;
-    border-radius: 4px;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: linear-gradient(rgba(94, 59, 30, 0.6), rgba(94, 59, 30, 0.6)), url('../images/wood-texture.jpg');
+    background-size: 100px 100px; /* Adjust texture scale */
     z-index: -1;
-    /* Mask to create a hollow frame */
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    padding: 2px; /* Thickness of the frame */
+    border-radius: 6px; /* Slightly larger than content radius */
 }
 
-.wooden-border:hover {
-    transform: scale(1.02); /* Slight zoom on hover */
-}
+/* .wooden-border:hover {
+    transform: scale(1.02);
+} */
 
 /* -----------------------
    Common Layout
@@ -150,8 +253,8 @@ main {
 .hamburger-btn {
     width: 50px;
     height: 50px;
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(44, 24, 16, 0.1); /* Darker background for contrast */
+    border: 1px solid rgba(44, 24, 16, 0.2);
     border-radius: 50%;
     cursor: pointer;
     backdrop-filter: blur(10px);
@@ -164,16 +267,20 @@ main {
 }
 
 .hamburger-btn:hover {
-    background: rgba(255,255,255,0.3);
+    background: rgba(44, 24, 16, 0.2);
     transform: scale(1.1);
 }
 
 .hamburger-line {
     width: 20px;
     height: 2px;
-    background: white;
+    background: var(--text-main); /* Use main text color */
     margin: 2px 0;
     transition: all 0.3s ease;
+}
+
+.hamburger-btn.active .hamburger-line {
+    background: var(--primary-color); /* Active state red */
 }
 
 .hamburger-btn.active .hamburger-line:nth-child(1) {
@@ -341,11 +448,10 @@ video.floating-media {
 }
 
 .team-member {
-    background: rgba(255,255,255,0.1);
-    padding: 30px;
+    /* Background handled by .wooden-border, but setting fallback */
+    background: #ffffff;
+    padding: 1.5rem; /* User suggested 1rem, using 1.5rem for better spacing */
     border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
     transition: transform 0.3s ease;
     flex: 0 0 auto;
     width: 100%;
@@ -353,13 +459,17 @@ video.floating-media {
     display: flex;
     flex-direction: row; /* Horizontal internal layout */
     align-items: flex-start; /* Top align image and text */
-    gap: 20px;
+    gap: 24px; /* Increased gap */
     text-align: left;
+    /* Visual Optimization */
+    box-shadow: 0 4px 6px rgba(44, 24, 16, 0.05);
 }
 
-.team-member:hover {
+/* Hover effect removed per user request */
+/* .team-member:hover {
     transform: translateY(-5px);
-}
+    box-shadow: 0 8px 15px rgba(44, 24, 16, 0.1);
+} */
 
 .team-member img {
     width: 150px;
@@ -368,6 +478,17 @@ video.floating-media {
     object-fit: cover;
     margin-bottom: 0; /* Removed bottom margin */
     flex-shrink: 0;
+    border: 3px solid var(--secondary-color); /* Add border to avatar */
+}
+
+/* Partner Logo Specific Styles */
+.team-member img.partner-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background-color: #ffffff;
+    padding: 10px;
+    border: 1px solid var(--tertiary-color);
 }
 
 .member-info {
@@ -378,17 +499,87 @@ video.floating-media {
 }
 
 .team-member h3 {
-    color: var(--accent-color);
-    margin-bottom: 10px;
+    color: var(--primary-color); /* Updated to primary color */
+    margin-bottom: 0.8rem;
     text-align: left;
     margin-top: 0;
+    font-size: 1.4rem;
 }
 
 .team-member p {
-    text-align: left;
-    font-size: 0.95em;
-    line-height: 1.6;
-    margin: 0;
+    text-align: justify; /* Requirement: Justify text */
+    font-size: 1rem;
+    line-height: 1.5; /* Requirement: 1.5 line height */
+    margin-bottom: 1.2em; /* Requirement: 1.2em spacing */
+    color: var(--text-main); /* High contrast color */
+}
+
+.team-member p:last-child {
+    margin-bottom: 0;
+}
+
+/* -----------------------
+   Food / Grid Layout (Food Page)
+   ----------------------- */
+/* Food item specific styles can reuse .team-member logic or have own class */
+.food-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    color: white;
+}
+
+.food-item:hover {
+    transform: translateY(-5px);
+}
+
+.model-view {
+    width: 200px;
+    height: 200px;
+}
+
+.food-content h3 {
+    margin-top: 15px;
+    font-size: 1.2em;
+}
+
+/* -----------------------
+   Exhibition Page
+   ----------------------- */
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.video-content {
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+}
+
+.video-content iframe,
+.video-content video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.exhibition-text {
+    flex: auto; /* Allow full width */
 }
 
 /* -----------------------
@@ -447,162 +638,31 @@ video.floating-media {
 
 @media (max-width: 768px) {
     .team-grid {
-        padding-bottom: 0;
+        align-items: stretch; /* Cards stretch to full width */
     }
 
     .team-member {
-        flex-direction: column; /* Stack vertically on small screens */
+        flex-direction: column; /* Stack image and text */
         align-items: center;
+        text-align: center;
+    }
+    
+    .team-member img {
+        margin-bottom: 20px;
+    }
+
+    .team-member h3, 
+    .team-member p {
         text-align: center;
     }
 
     .member-info {
-        align-items: center; /* Center text on mobile */
+        align-items: center;
     }
 
-    .team-member h3 {
-        text-align: center;
-    }
-
-    .team-member p {
-        text-align: left; /* Keep paragraphs left-aligned for readability */
-    }
-
-    .header h1 {
-        font-size: 2em;
-    }
-    
-    .container {
-        padding: 60px 15px 30px;
+    /* Partner logo specific for mobile */
+    .team-member img.partner-logo {
+        width: 60px; /* Slightly smaller on mobile if needed, or keep 80 */
+        height: 60px;
     }
 }
-
-@media (max-width: 600px) {
-    .hamburger-menu {
-        top: 16px;
-        right: 16px;
-    }
-
-    .menu-dropdown {
-        right: 0;
-    }
-
-    .text-panel {
-        padding: clamp(20px, 6vw, 36px);
-    }
-}
-
-/* -----------------------
-   Food Menu Page
-   ----------------------- */
-.food-item {
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 350px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    animation: floatVertical 6s ease-in-out infinite;
-}
-
-.food-item:nth-child(2) {
-    animation-delay: 2s;
-}
-
-.food-item:nth-child(3) {
-    animation-delay: 4s;
-}
-
-@keyframes floatVertical {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-}
-
-.food-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-.model-view {
-    width: 100%;
-    height: 250px;
-    position: relative;
-}
-
-.food-content {
-    padding: 25px;
-}
-
-.food-content h3 {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    color: var(--accent-color);
-}
-
-/* -----------------------
-   Exhibition Page
-   ----------------------- */
-.content-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    margin-top: 40px;
-    align-items: center;
-}
-
-.exhibition-text {
-    width: 100%;
-    max-width: 800px;
-    min-width: 300px;
-}
-
-.exhibition-text h2,
-.exhibition-text h3 {
-    font-size: 1.8em;
-    color: var(--accent-color);
-    margin-bottom: 20px;
-    margin-top: 10px;
-}
-
-.video-content {
-    width: 100%;
-    max-width: 800px;
-    min-width: 300px;
-    position: relative;
-    overflow: hidden;
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    aspect-ratio: 16 / 9;
-}
-
-.video-content iframe,
-.video-content video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    border-radius: inherit;
-    object-fit: cover;
-}
-
-@supports not (aspect-ratio: 16 / 9) {
-    .video-content {
-        height: 0;
-        padding-bottom: 56.25%;
-    }
-    .video-content iframe,
-    .video-content video {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-}
-
-
