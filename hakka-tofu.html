@@ -40,6 +40,16 @@
 
     <script src="js/main.js"></script>
     <script>
+        // Interaction for step highlighting
+        function toggleStep(element) {
+            // Remove active class from all other steps
+            document.querySelectorAll('.step-item').forEach(el => {
+                if (el !== element) el.classList.remove('active');
+            });
+            // Toggle current step
+            element.classList.toggle('active');
+        }
+
         /*
          * mediaItems 数组解读：
          * 这个数组定义了所有要显示在 #mediaCanvas 上的媒体资源。
