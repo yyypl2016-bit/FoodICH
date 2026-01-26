@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food - What you see is what you eat</title>
+    <title>Food - What You See is What You Eat</title>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
@@ -12,6 +12,7 @@
 </head>
 <body>
     <div id="particle-container"></div>
+
     <!-- 汉堡菜单 -->
     <div class="hamburger-menu">
         <button class="hamburger-btn" onclick="toggleMenu()">
@@ -28,30 +29,173 @@
             <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
         </div>
     </div>
-    
+
     <div class="container">
-        <a href="claypot.html" class="food-item wooden-border">
-            <div class="model-view" data-model="models/claypot-rice.fbx"></div>
-             <div class="food-content">
-                 <h3>煲仔飯 Clay Pot Rice</h3>
-             </div>
-         </a>
-         
-         <a href="steam-buns.html" class="food-item wooden-border">
-            <div class="model-view" data-model="models/meat-bun.fbx"></div>
-             <div class="food-content">
-                 <h3>流汁湯包 Steam Buns</h3>
-             </div>
-         </a>
-         
-         <a href="hakka-tofu.html" class="food-item wooden-border">
-            <div class="model-view" data-model="models/garden-tofu.fbx"></div>
-             <div class="food-content">
-                 <h3>客家釀豆腐 Hakka Stuffed Tofu</h3>
-             </div>
-         </a>
-     </div>
-     
+        <div class="header">
+            <h1>美食集 / Culinary Heritage</h1>
+            <p style="font-family: var(--font-title-cn); color: var(--soy-brown); font-size: var(--text-lg); margin-top: var(--space-md);">
+                探索粤菜非物质文化遗产的精髓
+            </p>
+        </div>
+
+        <div class="food-showcase">
+            <!-- 煲仔饭 -->
+            <a href="claypot.html" class="food-card fade-in-up stagger-1">
+                <div class="card-inner">
+                    <div class="model-container">
+                        <div class="model-view" data-model="models/claypot-rice.fbx" id="model-1"></div>
+                    </div>
+                    <div class="dish-info">
+                        <span class="dish-number">01</span>
+                        <h2 class="dish-name-cn">煲仔饭</h2>
+                        <h3 class="dish-name-en">Clay Pot Rice</h3>
+                        <p class="dish-tagline">火候与时间的艺术，将米饭的香气封存在陶土之中</p>
+                        <div class="explore-btn">
+                            <span>探索更多 Explore</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-background"></div>
+            </a>
+
+            <!-- 流汁湯包 -->
+            <a href="steam-buns.html" class="food-card fade-in-up stagger-2">
+                <div class="card-inner">
+                    <div class="model-container">
+                        <div class="model-view" data-model="models/meat-bun.fbx" id="model-2"></div>
+                    </div>
+                    <div class="dish-info">
+                        <span class="dish-number">02</span>
+                        <h2 class="dish-name-cn">流汁湯包</h2>
+                        <h3 class="dish-name-en">Steamed Soup Buns</h3>
+                        <p class="dish-tagline">薄如蝉翼的面皮，包裹着鲜美的汤汁与馅料</p>
+                        <div class="explore-btn">
+                            <span>探索更多 Explore</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-background"></div>
+            </a>
+
+            <!-- 客家釀豆腐 -->
+            <a href="hakka-tofu.html" class="food-card fade-in-up stagger-3">
+                <div class="card-inner">
+                    <div class="model-container">
+                        <div class="model-view" data-model="models/garden-tofu.fbx" id="model-3"></div>
+                    </div>
+                    <div class="dish-info">
+                        <span class="dish-number">03</span>
+                        <h2 class="dish-name-cn">客家釀豆腐</h2>
+                        <h3 class="dish-name-en">Hakka Stuffed Tofu</h3>
+                        <p class="dish-tagline">客家人的智慧结晶，豆腐与肉馅的完美融合</p>
+                        <div class="explore-btn">
+                            <span>探索更多 Explore</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-background"></div>
+            </a>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
+    <script>
+        // 3D模型加载逻辑
+        const modelConfigs = [
+            { id: 'model-1', path: 'models/claypot-rice.fbx' },
+            { id: 'model-2', path: 'models/meat-bun.fbx' },
+            { id: 'model-3', path: 'models/garden-tofu.fbx' }
+        ];
+
+        function initModel(containerId, modelPath) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 15);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // 添加光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            directionalLight.position.set(10, 10, 10);
+            scene.add(directionalLight);
+
+            const pointLight = new THREE.PointLight(0xD4A574, 0.5, 50);
+            pointLight.position.set(-5, 5, 5);
+            scene.add(pointLight);
+
+            // 加载模型
+            const loader = new THREE.FBXLoader();
+            loader.load(modelPath, function(object) {
+                object.scale.setScalar(0.08);
+                object.rotation.x = Math.PI * 40 / 180;
+                object.position.set(0, -2, 0);
+
+                object.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                scene.add(object);
+
+                // 自动旋转动画
+                function animate() {
+                    requestAnimationFrame(animate);
+                    object.rotation.y += 0.005;
+                    renderer.render(scene, camera);
+                }
+                animate();
+            }, undefined, function(error) {
+                console.error('模型加载失败:', error);
+                // 如果模型加载失败，创建一个占位几何体
+                const geometry = new THREE.BoxGeometry(3, 3, 3);
+                const material = new THREE.MeshPhongMaterial({ color: 0xD4A574 });
+                const cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    cube.rotation.y += 0.005;
+                    renderer.render(scene, camera);
+                }
+                animate();
+            });
+
+            // 响应式调整
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            });
+        }
+
+        // 初始化所有模型
+        window.addEventListener('DOMContentLoaded', () => {
+            modelConfigs.forEach(config => {
+                initModel(config.id, config.path);
+            });
+        });
+    </script>
 </body>
 </html>

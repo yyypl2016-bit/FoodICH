@@ -3,18 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exhibition & VR - What you see is what you eat</title>
+    <title>Exhibition & VR - What You See is What You Eat</title>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: var(--deep-brown);
+            overflow-x: hidden;
+        }
+
+        .exhibition-hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--deep-brown) 0%, var(--chocolate) 100%);
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: var(--rice-white);
+            max-width: 800px;
+            padding: var(--space-2xl);
+        }
+
+        .hero-content h1 {
+            font-size: clamp(var(--text-5xl), 8vw, 90px);
+            color: var(--rice-white);
+            margin-bottom: var(--space-lg);
+            font-weight: 900;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .hero-content .subtitle {
+            font-size: var(--text-xl);
+            color: var(--light-gold);
+            font-family: var(--font-body-en);
+            margin-bottom: var(--space-xl);
+        }
+
+        .hero-background {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            background:
+                url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M30 0L35 20L55 25L35 30L30 50L25 30L5 25L25 20Z" fill="%23D4A574" opacity="0.3"/%3E%3C/svg%3E') repeat;
+            animation: patternSlide 60s linear infinite;
+        }
+
+        @keyframes patternSlide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .content-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-2xl) var(--space-lg);
+            position: relative;
+        }
+
+        .content-section:nth-child(even) {
+            background: var(--chocolate);
+        }
+
+        .content-section:nth-child(odd) {
+            background: var(--deep-brown);
+        }
+
+        .section-inner {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            align-items: center;
+        }
+
+        .section-text {
+            color: var(--rice-white);
+        }
+
+        .section-text h2 {
+            color: var(--caramel-gold);
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-text p {
+            color: var(--rice-white);
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        .section-media {
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-hard), 0 20px 60px rgba(0,0,0,0.4);
+            border: 3px solid var(--caramel-gold);
+        }
+
+        .section-media iframe,
+        .section-media video {
+            width: 100%;
+            height: 500px;
+            display: block;
+        }
+
+        .section-media video {
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .section-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .section-media iframe,
+            .section-media video {
+                height: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="particle-container"></div>
+
     <!-- 汉堡菜单 -->
     <div class="hamburger-menu">
-        <button class="hamburger-btn" onclick="toggleMenu()">
-            <div class="hamburger-line"></div>
-            <div class="hamburger-line"></div>
-            <div class="hamburger-line"></div>
+        <button class="hamburger-btn" onclick="toggleMenu()" style="border-color: var(--caramel-gold);">
+            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
+            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
+            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
         </button>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="index.html" class="menu-item">Home</a>
@@ -25,38 +150,102 @@
             <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
         </div>
     </div>
-    
-    <div class="container">
-        <div class="header">
+
+    <!-- Hero区 -->
+    <section class="exhibition-hero">
+        <div class="hero-background"></div>
+        <div class="hero-content fade-in-up">
+            <div class="chapter-seal" style="display: inline-block; margin-bottom: var(--space-md);">展覽</div>
             <h1>Exhibition & VR</h1>
-            <p>1-15 March 2025 • Hong Kong Arts Centre Pao Galleries</p>
+            <p class="subtitle">1-15 March 2025 • Hong Kong Arts Centre Pao Galleries</p>
+            <p style="font-size: var(--text-lg); margin-top: var(--space-xl); max-width: 600px; margin-left: auto; margin-right: auto;">
+                探索粵菜非物質文化遺產的未來，通過沉浸式VR體驗與AI生成藝術，連接傳統與創新
+            </p>
         </div>
-        
-        <div class="content-wrapper">
-            <div class="video-content wooden-border">
+    </section>
+
+    <!-- 展览视频区 -->
+    <section class="content-section">
+        <div class="section-inner">
+            <div class="section-text fade-in-up stagger-1">
+                <div class="chapter-seal">記錄</div>
+                <h2>Exhibition Documentation</h2>
+                <p>Opening Reception: Saturday, 1 March 2025, 7PM</p>
+                <p style="font-style: italic; margin-top: var(--space-md);">
+                    "Our cultural heritage is a process" — 我們的文化遺產是一個不斷演進的過程
+                </p>
+                <p style="margin-top: var(--space-lg);">
+                    Cultural heritage consists of not only physical artifacts, but also transient processes, improvised actions, and expressed imaginations. This exhibition presents a unique exploration of Hong Kong's culinary heritage through the lens of technology and art.
+                </p>
+            </div>
+            <div class="section-media fade-in-up stagger-2">
                 <iframe src="https://www.youtube.com/embed/ia2CZP8bipQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
-            <div class="text-panel exhibition-text wooden-border">
-                <h3>Curatorial Statement</h3>
-                <p>Opening Reception: Saturday, 1 March 2025, 7PM</p>
-                <p>“Our cultural heritage is a process”</p>
-                <p>Cultural heritage consists of not only physical artifacts, but also transient processes, improvised actions, and expressed imaginations that tell us more about the human side of the heritage rather than the physical location itself. In a rapidly evolving technologically enabled world, intangible processes like culinary methods, social customs, and collective imaginations are often neglected, and fail to be recorded as carefully as physical artifacts. FUTURE TENSE HONG KONG is an art-technology-driven exploration of the future of the intangible side of Hong Kong's cultural heritage, shaped by social change, climate change, and urban development, as imagined by its residents. This exhibition presents a VR navigation app that immersively maps Hong Kong's cultural heritage, a photography and VR exhibit of food imagery generated by workshop participants using state-of-the-art Stable Diffusion technology, two multimedia artworks by Cyan D'Anjou and Meta Objects Studio that speculate on the visual futures seen in immersive form, and works by Paul Shepherd and Inhwa Yeom that immerses the audience in two techno-culture worlds reflecting our own cultural idiosyncrasies. By amplifying the voices and imaginations of its people, the exhibition fosters a collective dialogue about the preservation and transformation of Hong Kong's heritage in an ever-evolving world.</p>
-            </div>
-            
-            <div class="video-content wooden-border">
+        </div>
+    </section>
+
+    <!-- VR体验区 -->
+    <section class="content-section">
+        <div class="section-inner">
+            <div class="section-media fade-in-up stagger-1">
                 <video controls>
                     <source src="video/VRFOOD.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
-
-            <div class="text-panel exhibition-text wooden-border">
-                <h3>VR Experience</h3>
-                <p>VR experience with 360 video interviews of the chefs and their cooking processes presented alongside AI generated 3D models of dishes in which users could pick-up and inspect at close range. Several traditional dining environments were created to share the process of material procurement, food preparation, unexpected alternative options, and familial traditions that make up Cantonese culinary heritage. The work was presented in the exhibition Future Tense at the Hong Kong Art Centre from 1-15 March 2025.</p>
+            <div class="section-text fade-in-up stagger-2">
+                <div class="chapter-seal">體驗</div>
+                <h2>VR Experience</h2>
+                <p>
+                    VR experience with 360 video interviews of the chefs and their cooking processes presented alongside AI generated 3D models of dishes in which users could pick-up and inspect at close range.
+                </p>
+                <p style="margin-top: var(--space-md);">
+                    Several traditional dining environments were created to share the process of material procurement, food preparation, unexpected alternative options, and familial traditions that make up Cantonese culinary heritage.
+                </p>
+                <p style="margin-top: var(--space-md); color: var(--caramel-gold); font-weight: 600;">
+                    The work was presented in the exhibition Future Tense at the Hong Kong Art Centre from 1-15 March 2025.
+                </p>
             </div>
         </div>
-    </div>
-    
+    </section>
+
+    <!-- 策展理念区 -->
+    <section class="content-section">
+        <div class="section-inner" style="grid-template-columns: 1fr;">
+            <div class="section-text fade-in-up" style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <div class="chapter-seal" style="display: inline-block; margin-bottom: var(--space-lg);">理念</div>
+                <h2 style="text-align: center;">Curatorial Statement</h2>
+                <p style="font-size: var(--text-lg); line-height: 2; margin-top: var(--space-xl); text-align: justify;">
+                    FUTURE TENSE HONG KONG is an art-technology-driven exploration of the future of the intangible side of Hong Kong's cultural heritage, shaped by social change, climate change, and urban development, as imagined by its residents. This exhibition presents a VR navigation app that immersively maps Hong Kong's cultural heritage, a photography and VR exhibit of food imagery generated by workshop participants using state-of-the-art Stable Diffusion technology, two multimedia artworks by Cyan D'Anjou and Meta Objects Studio that speculate on the visual futures seen in immersive form, and works by Paul Shepherd and Inhwa Yeom that immerses the audience in two techno-culture worlds reflecting our own cultural idiosyncrasies. By amplifying the voices and imaginations of its people, the exhibition fosters a collective dialogue about the preservation and transformation of Hong Kong's heritage in an ever-evolving world.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <script src="js/main.js"></script>
+    <script>
+        // 滚动触发动画
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up, .section-text, .section-media').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>

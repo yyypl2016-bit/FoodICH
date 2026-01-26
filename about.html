@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team - What you see is what you eat</title>
+    <title>Team - What You See is What You Eat</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 </head>
 <body>
     <div id="particle-container"></div>
+
     <!-- 汉堡菜单 -->
     <div class="hamburger-menu">
         <button class="hamburger-btn" onclick="toggleMenu()">
@@ -25,78 +26,148 @@
             <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
         </div>
     </div>
-    
+
     <div class="container">
         <div class="header">
-            <h1>Team</h1>
+            <h1>传承者 / Custodians</h1>
+            <p style="font-family: var(--font-title-cn); color: var(--soy-brown); font-size: var(--text-lg); margin-top: var(--space-md);">
+                致力于保护与传播粤菜非物质文化遗产的团队
+            </p>
         </div>
-        
+
         <div class="team-section">
-            <div class="team-grid">
-                <div class="team-member wooden-border">
-                    <img src="images/raylc.jpg" alt="RAY LC">
+            <div class="team-timeline">
+                <!-- 时间线装饰 -->
+                <div class="timeline-line"></div>
+
+                <!-- 团队成员卡片 -->
+                <article class="team-member stagger-1">
+                    <div class="seal-container">
+                        <img src="images/raylc.jpg" alt="RAY LC" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>RAY LC</h3>
-                        <p>RAY (Parsons MFA, UCLA PhD) creates exhibitions and interventions using environmental storytelling and human-machine interactions. He takes inspiration from his own research in human- computer interaction and neuroscience in works that probe human community’s evolving relationship with technology. He takes perspectives from his own research in HCI in his artistic practice, with notable exhibitions at New York Hall of Science, Ars Electronica, NeurIPS, CVPR, Osage Gallery, Videotage, Goethe Institute, Hong Kong Arts Centre, PMQ, Science Gallery MSU, National Asian Culture Center Gwangju, IEEE VISAP, SIGGRAPH Asia. RAY founded the Studio for Narrative Spaces: https://recfro.github.io/</p>
+                        <p class="role">Founder & Creative Director</p>
+                        <p>RAY (Parsons MFA, UCLA PhD) creates exhibitions and interventions using environmental storytelling and human-machine interactions. He takes inspiration from his own research in human-computer interaction and neuroscience in works that probe human community's evolving relationship with technology. He takes perspectives from his own research in HCI in his artistic practice, with notable exhibitions at New York Hall of Science, Ars Electronica, NeurIPS, CVPR, Osage Gallery, Videotage, Goethe Institute, Hong Kong Arts Centre, PMQ, Science Gallery MSU, National Asian Culture Center Gwangju, IEEE VISAP, SIGGRAPH Asia. RAY founded the Studio for Narrative Spaces: https://recfro.github.io/</p>
                     </div>
-                </div>
-                <div class="team-member wooden-border">
-                    <img src="images/richard_allen.jpg" alt="Richard Allen">
+                </article>
+
+                <article class="team-member stagger-2">
+                    <div class="seal-container">
+                        <img src="images/richard_allen.jpg" alt="Richard Allen" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Richard Allen</h3>
-                        <p>Richard Allen is a film scholar whose work is well known the areas of film theory and philosophy, Hitchcock Studies, Indian Cinema, and melodrama. His books include Projecting Illusion (1995), Hitchcock’s Romantic Irony (2007), and the forthcoming Storytelling in Hindi Cinema (2025).Since joining the School of Creative Media in 2016, Allen has developed research at the intersection of art and new media. He organized two international conferences on Machine Learning and Art, Art Machines (2019) and Art Machines 2 (2021), and, with Jeffrey Shaw he curated a major exhibition on computational art called Art Machines at the Indra and Harry Banga Gallery, CityUK (2020).As director of the Center for the Center of Applied Computing and Interactive Media (ACIM), Allen is collaborating with Jeffrey Shaw (HKBU) on Future Cinema Systems and as project director of City in Time, an immersive AR Hong Kong cultural heritage installation in collaboration with the Tourism Commission, which is accessible through a mobile app.</p>
+                        <p class="role">Director, ACIM</p>
+                        <p>Richard Allen is a film scholar whose work is well known the areas of film theory and philosophy, Hitchcock Studies, Indian Cinema, and melodrama. His books include Projecting Illusion (1995), Hitchcock's Romantic Irony (2007), and the forthcoming Storytelling in Hindi Cinema (2025). Since joining the School of Creative Media in 2016, Allen has developed research at the intersection of art and new media. He organized two international conferences on Machine Learning and Art, Art Machines (2019) and Art Machines 2 (2021), and, with Jeffrey Shaw he curated a major exhibition on computational art called Art Machines at the Indra and Harry Banga Gallery, CityUK (2020). As director of the Center for the Center of Applied Computing and Interactive Media (ACIM), Allen is collaborating with Jeffrey Shaw (HKBU) on Future Cinema Systems and as project director of City in Time, an immersive AR Hong Kong cultural heritage installation in collaboration with the Tourism Commission, which is accessible through a mobile app.</p>
                     </div>
-                </div>
-                <div class="team-member wooden-border">
-                    <img src="images/star_liu.jpg" alt="Liu Sijia Star">
+                </article>
+
+                <article class="team-member stagger-3">
+                    <div class="seal-container">
+                        <img src="images/star_liu.jpg" alt="Liu Sijia Star" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Liu Sijia Star</h3>
-                        <p>Sijia Liu, also known as Star, is a PhD student at the School of Creative Media, City University of Hong Kong. She earned her MFA from SCM CityU and a BFA from the School of the Art Institute of Chicago. Her extensive experience includes art creation, design, curation, and event planning. As a practitioner in HCI with an artistic background, she explores the potential of GenAI technology to assist individuals in creative professions. Her current research focuses on understanding the influence of dreams on creativity support from a human-centered computing perspective, facilitated by the use of GenAI technology. As a curator, the research-based practice exhibition supported by HKADC, was showcased at Fringe Club. Star’s academic work is published at ACM CC, Multimedia, ISEA, etc. Her personal website: starliusijia.com</p>
+                        <p class="role">PhD Student & Curator</p>
+                        <p>Sijia Liu, also known as Star, is a PhD student at the School of Creative Media, City University of Hong Kong. She earned her MFA from SCM CityU and a BFA from the School of the Art Institute of Chicago. Her extensive experience includes art creation, design, curation, and event planning. As a practitioner in HCI with an artistic background, she explores the potential of GenAI technology to assist individuals in creative professions. Her current research focuses on understanding the influence of dreams on creativity support from a human-centered computing perspective, facilitated by the use of GenAI technology. As a curator, the research-based practice exhibition supported by HKADC, was showcased at Fringe Club. Star's academic work is published at ACM CC, Multimedia, ISEA, etc. Her personal website: starliusijia.com</p>
                     </div>
-                </div>
-                
-                <div class="team-member wooden-border">
-                    <img src="images/bowen_liu.jpg" alt="Liu Bowen">
+                </article>
+
+                <article class="team-member stagger-4">
+                    <div class="seal-container">
+                        <img src="images/bowen_liu.jpg" alt="Liu Bowen" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Liu Bowen</h3>
+                        <p class="role">Research Assistant & Artist</p>
                         <p>Bowen is a full-time research assistant at the School of Creative Media. He pursued a masters at Central Academy of Fine Arts, where he exhibited with works in Beijing. His creative scope encompasses generative art, mechanical installations, and visual effects experiments. He is also an artist.</p>
                     </div>
-                </div>
-                <div class="team-member wooden-border">
-                    <img src="images/xiaoke_zeng.jpg" alt="Zeng Xiaoke">
+                </article>
+
+                <article class="team-member stagger-5">
+                    <div class="seal-container">
+                        <img src="images/xiaoke_zeng.jpg" alt="Zeng Xiaoke" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Zeng Xiaoke</h3>
+                        <p class="role">Research Assistant & Designer</p>
                         <p>Xiaoke is a full-time research assistant at the School of Creative Media, who came from South China Normal University. He is interested in exploring the creative applications of XR, AIGC, and BCI for supporting future creative processes. He is also a designer and director who created fictional stories and animation videos of future products.</p>
                     </div>
-                </div>
+                </article>
 
-                <div class="team-member wooden-border">
-                    <img src="images/sidney.jpg" alt="Prof. Sidney C.H. Cheung">
+                <article class="team-member">
+                    <div class="seal-container">
+                        <img src="images/sidney.jpg" alt="Prof. Sidney C.H. Cheung" class="avatar-circle">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Prof. Sidney C.H. Cheung</h3>
+                        <p class="role">Professor & Cultural Anthropologist</p>
                         <p>Prof. Sidney C.H. Cheung received scholarships given by Japanese Government/Monbusho (1984-94) for his undergraduate, masters and doctoral programmes and his anthropological training in Japan. He is the Professor and Associate Director of the Centre for Archaeology and Cultural Heritage Studies. He has been doing research about freshwater fish farming in Hong Kong in order to understand the fishermen and their perspectives on environmental change, sustainable development and wetland conservation. Currently, he is working on an ongoing multi-site research project exploring the impact of the move of American crayfish from the U.S. to Asia and on the global consumption and production of crayfish in China, Japan, and the U.S. Besides academic publications, Cheung was co-hosting three RTHK radio/television programmes entitled: 《港飲食、講文化 (Hong Kong Foodways and Culture)》in 2004, 《文化非主流 (Culture Unconventional)》in 2005,《考飲考食》in 2017/2018, 《味之天下：中華色香味》in 2022 and《藝文谷之味覺漫遊系列》in 2025, through which he was able to bring anthropological perspectives to the mass public. Again, some of his research findings were used for the RTHK documentary series of 《香港故事 (Hong Kong Stories) 》 such as [年年有魚] and [東江逆流] in 2008.</p>
                     </div>
+                </article>
+
+                <!-- 合作伙伴部分 -->
+                <div style="text-align: center; margin: var(--space-3xl) 0 var(--space-2xl);">
+                    <div class="chapter-seal">合作伙伴</div>
+                    <h2 style="margin-top: var(--space-md);">Partners</h2>
                 </div>
 
-                <div class="team-member wooden-border">
-                    <img src="images/metaobjects.jpg" alt="Meta Objects" class="partner-logo">
+                <article class="team-member">
+                    <div class="seal-container">
+                        <img src="images/metaobjects.jpg" alt="Meta Objects" class="partner-logo">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Meta Objects</h3>
-                        <p>MetaObjects is an art & technology studio based in Hong Kong. MetaObjects worked with the team to create a VR experience.</p>
+                        <p class="role">Technology Partner</p>
+                        <p>MetaObjects is an art & technology studio based in Hong Kong. MetaObjects worked with the team to create a VR experience that brings the traditional Cantonese cuisine into immersive digital storytelling.</p>
                     </div>
-                </div>
+                </article>
 
-                <div class="team-member wooden-border">
-                    <img src="images/hkac.jpg" alt="HKAC" class="partner-logo">
+                <article class="team-member">
+                    <div class="seal-container">
+                        <img src="images/hkac.jpg" alt="HKAC" class="partner-logo">
+                        <div class="seal-border"></div>
+                    </div>
                     <div class="member-info">
                         <h3>Hong Kong Arts Development Council</h3>
-                        <p>This project is supported by the Hong Kong Arts Development Council (HKADC).</p>
+                        <p class="role">Funding Support</p>
+                        <p>This project is supported by the Hong Kong Arts Development Council (HKADC). The Council's support enables us to preserve and promote Cantonese culinary heritage through innovative digital experiences.</p>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
     </div>
-    
+
     <script src="js/main.js"></script>
+    <script>
+        // 滚动触发动画
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // 观察所有团队成员卡片
+        document.querySelectorAll('.team-member').forEach(member => {
+            observer.observe(member);
+        });
+    </script>
 </body>
 </html>
