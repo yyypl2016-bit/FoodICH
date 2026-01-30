@@ -1,132 +1,407 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exhibition & VR - What You See is What You Eat</title>
+    <title>Exhibition - What You See is What You Eat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <link rel="stylesheet" href="css/style.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f5f5f0;
+            --accent-color: #c9a961;
+            --text-dark: #2a2a2a;
+            --text-light: #f5f5f0;
+            --border-color: rgba(201, 169, 97, 0.2);
+            --transition-duration: 0.4s;
+        }
+
         body {
-            background: var(--deep-brown);
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-light);
         }
 
-        .exhibition-hero {
-            position: relative;
+        #particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
             height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 24px 40px;
+            background: linear-gradient(180deg, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0) 100%);
+            backdrop-filter: blur(10px);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--deep-brown) 0%, var(--chocolate) 100%);
-            overflow: hidden;
+            animation: slideDown 0.8s ease-out;
         }
 
-        .hero-content {
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(201, 169, 97, 0.7);
+            line-height: 1;
+        }
+
+        .nav-menu {
+            display: none;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             position: relative;
-            z-index: 10;
-            text-align: center;
-            color: var(--rice-white);
-            max-width: 800px;
-            padding: var(--space-2xl);
+            transition: color var(--transition-duration) ease;
         }
 
-        .hero-content h1 {
-            font-size: clamp(var(--text-5xl), 8vw, 90px);
-            color: var(--rice-white);
-            margin-bottom: var(--space-lg);
-            font-weight: 900;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        .hero-content .subtitle {
-            font-size: var(--text-xl);
-            color: var(--light-gold);
-            font-family: var(--font-body-en);
-            margin-bottom: var(--space-xl);
-        }
-
-        .hero-background {
+        .nav-link::after {
+            content: '';
             position: absolute;
-            inset: 0;
-            opacity: 0.15;
-            background:
-                url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M30 0L35 20L55 25L35 30L30 50L25 30L5 25L25 20Z" fill="%23D4A574" opacity="0.3"/%3E%3C/svg%3E') repeat;
-            animation: patternSlide 60s linear infinite;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-color);
+            transition: width var(--transition-duration) ease;
         }
 
-        @keyframes patternSlide {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
+        .nav-link:hover {
+            color: var(--accent-color);
         }
 
-        .content-section {
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .hamburger-menu {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .hamburger-btn {
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: 1px solid rgba(245, 245, 240, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            gap: 5px;
+        }
+
+        .hamburger-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(201, 169, 97, 0.05);
+        }
+
+        .hamburger-line {
+            width: 18px;
+            height: 1px;
+            background: var(--text-light);
+            transition: all var(--transition-duration) ease;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.98) 0%, rgba(26, 26, 26, 0.95) 100%);
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            border-radius: 4px;
+            padding: 24px 0;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scaleY(0.95);
+            transform-origin: top right;
+            transition: all var(--transition-duration) ease;
+            min-width: 200px;
+        }
+
+        .menu-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scaleY(1);
+        }
+
+        .menu-item {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 12px 28px;
+            transition: all var(--transition-duration) ease;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent-color);
+            transform: scaleY(0);
+            transform-origin: center;
+            transition: transform var(--transition-duration) ease;
+        }
+
+        .menu-item:hover {
+            color: var(--accent-color);
+            background: rgba(201, 169, 97, 0.08);
+        }
+
+        .menu-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        /* Hero区域 */
+        .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: var(--space-2xl) var(--space-lg);
+            padding: 140px 40px 80px;
+            text-align: center;
             position: relative;
         }
 
-        .content-section:nth-child(even) {
-            background: var(--chocolate);
+        .hero-content {
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out 0.3s both;
         }
 
-        .content-section:nth-child(odd) {
-            background: var(--deep-brown);
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 400;
+            margin-bottom: 30px;
+            color: var(--text-light);
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: rgba(245, 245, 240, 0.7);
+            font-weight: 300;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* 内容区块 */
+        .content-section {
+            padding: 120px 40px;
+            position: relative;
         }
 
         .section-inner {
-            max-width: 1200px;
-            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: var(--space-2xl);
+            gap: 80px;
             align-items: center;
         }
 
-        .section-text {
-            color: var(--rice-white);
+        .section-inner.reverse {
+            direction: rtl;
+        }
+
+        .section-inner.reverse > * {
+            direction: ltr;
         }
 
         .section-text h2 {
-            color: var(--caramel-gold);
-            margin-bottom: var(--space-lg);
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--text-light);
+            letter-spacing: -1px;
         }
 
         .section-text p {
-            color: var(--rice-white);
-            opacity: 0.9;
+            font-size: 16px;
             line-height: 1.8;
+            color: rgba(245, 245, 240, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .section-media {
-            border-radius: 24px;
+            width: 100%;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: var(--shadow-hard), 0 20px 60px rgba(0,0,0,0.4);
-            border: 3px solid var(--caramel-gold);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-duration) ease;
+        }
+
+        .section-media:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(201, 169, 97, 0.15);
         }
 
         .section-media iframe,
-        .section-media video {
+        .section-media video,
+        .section-media img {
             width: 100%;
             height: 500px;
             display: block;
-        }
-
-        .section-media video {
             object-fit: cover;
         }
 
-        @media (max-width: 768px) {
+        /* 响应式 */
+        @media (min-width: 768px) {
+            .hamburger-menu {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .navbar {
+                padding: 16px 20px;
+            }
+
+            .logo-text {
+                font-size: 15px;
+            }
+
+            .hero {
+                padding: 120px 20px 60px;
+            }
+
+            .content-section {
+                padding: 80px 20px;
+            }
+
             .section-inner {
                 grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .section-inner.reverse {
+                direction: ltr;
             }
 
             .section-media iframe,
-            .section-media video {
+            .section-media video,
+            .section-media img {
                 height: 300px;
+            }
+
+            .menu-dropdown {
+                right: 20px;
+                left: 20px;
+                min-width: auto;
             }
         }
     </style>
@@ -134,101 +409,131 @@
 <body>
     <div id="particle-container"></div>
 
-    <!-- 汉堡菜单 -->
-    <div class="hamburger-menu">
-        <button class="hamburger-btn" onclick="toggleMenu()" style="border-color: var(--caramel-gold);">
-            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
-            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
-            <div class="hamburger-line" style="background: var(--caramel-gold);"></div>
-        </button>
-        <div class="menu-dropdown" id="menuDropdown">
-            <a href="index.html" class="menu-item">Home</a>
-            <a href="about.html" class="menu-item">About</a>
-            <a href="food.html" class="menu-item">Food</a>
-            <a href="exhibition.html" class="menu-item">Exhibition</a>
-            <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
-            <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo-text">FoodICH</div>
+            <div class="logo-subtitle">Narrative Food</div>
         </div>
-    </div>
 
-    <!-- Hero区 -->
-    <section class="exhibition-hero">
-        <div class="hero-background"></div>
-        <div class="hero-content fade-in-up">
-            <div class="chapter-seal" style="display: inline-block; margin-bottom: var(--space-md);">展覽</div>
-            <h1>Exhibition & VR</h1>
-            <p class="subtitle">1-15 March 2025 • Hong Kong Arts Centre Pao Galleries</p>
-            <p style="font-size: var(--text-lg); margin-top: var(--space-xl); max-width: 600px; margin-left: auto; margin-right: auto;">
-                探索粵菜非物質文化遺產的未來，通過沉浸式VR體驗與AI生成藝術，連接傳統與創新
-            </p>
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="food.html" class="nav-link">Food</a></li>
+            <li><a href="exhibition.html" class="nav-link">Exhibition</a></li>
+            <li><a href="https://recfro.github.io/" class="nav-link" target="_blank">Studio</a></li>
+            <li><a href="https://instagram.com/futuretensehk" class="nav-link" target="_blank">Instagram</a></li>
+        </ul>
+
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" onclick="toggleMenu()">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+            <div class="menu-dropdown" id="menuDropdown">
+                <a href="index.html" class="menu-item">Home</a>
+                <a href="about.html" class="menu-item">About</a>
+                <a href="food.html" class="menu-item">Food</a>
+                <a href="exhibition.html" class="menu-item">Exhibition</a>
+                <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+                <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Exhibition & VR Experience</h1>
+            <p class="subtitle">Immerse yourself in the rich tapestry of Cantonese culinary heritage through our interactive VR experience and curated exhibitions</p>
         </div>
     </section>
 
-    <!-- 展览视频区 -->
+    <!-- VR体验 -->
     <section class="content-section">
         <div class="section-inner">
-            <div class="section-text fade-in-up stagger-1">
-                <div class="chapter-seal">記錄</div>
-                <h2>Exhibition Documentation</h2>
-                <p>Opening Reception: Saturday, 1 March 2025, 7PM</p>
-                <p style="font-style: italic; margin-top: var(--space-md);">
-                    "Our cultural heritage is a process" — 我們的文化遺產是一個不斷演進的過程
-                </p>
-                <p style="margin-top: var(--space-lg);">
-                    Cultural heritage consists of not only physical artifacts, but also transient processes, improvised actions, and expressed imaginations. This exhibition presents a unique exploration of Hong Kong's culinary heritage through the lens of technology and art.
-                </p>
+            <div class="section-text">
+                <span class="section-label">Virtual Reality</span>
+                <h2>VR Experience</h2>
+                <p>Step into a fully immersive 360° video journey featuring intimate interviews with master chefs and their time-honored cooking processes.</p>
+                <p>Experience AI-generated 3D models of dishes presented in stunning virtual environments, allowing you to explore Cantonese cuisine from perspectives never before possible.</p>
             </div>
-            <div class="section-media fade-in-up stagger-2">
-                <iframe src="https://www.youtube.com/embed/ia2CZP8bipQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="section-media">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
     </section>
 
-    <!-- VR体验区 -->
+    <!-- 展览照片 -->
+    <section class="content-section">
+        <div class="section-inner reverse">
+            <div class="section-text">
+                <span class="section-label">Gallery</span>
+                <h2>Exhibition Gallery</h2>
+                <p>Our physical exhibitions bring together traditional craftsmanship and cutting-edge technology to celebrate Cantonese culinary intangible cultural heritage.</p>
+                <p>Through carefully curated displays and interactive installations, visitors can engage with the stories, techniques, and cultural significance behind each dish.</p>
+            </div>
+            <div class="section-media">
+                <img src="images/exhibition-placeholder.jpg" alt="Exhibition Gallery" onerror="this.style.background='rgba(201,169,97,0.1)'">
+            </div>
+        </div>
+    </section>
+
+    <!-- 互动体验 -->
     <section class="content-section">
         <div class="section-inner">
-            <div class="section-media fade-in-up stagger-1">
-                <video controls>
-                    <source src="video/VRFOOD.mp4" type="video/mp4">
+            <div class="section-text">
+                <span class="section-label">Interactive</span>
+                <h2>Hands-On Experience</h2>
+                <p>Engage with interactive installations that allow you to explore the ingredients, cooking techniques, and cultural narratives embedded in each dish.</p>
+                <p>Our digital platforms combine historical research with contemporary technology to make intangible heritage tangible and accessible to all.</p>
+            </div>
+            <div class="section-media">
+                <video autoplay loop muted playsinline>
+                    <source src="videos/interactive-demo.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
-            <div class="section-text fade-in-up stagger-2">
-                <div class="chapter-seal">體驗</div>
-                <h2>VR Experience</h2>
-                <p>
-                    VR experience with 360 video interviews of the chefs and their cooking processes presented alongside AI generated 3D models of dishes in which users could pick-up and inspect at close range.
-                </p>
-                <p style="margin-top: var(--space-md);">
-                    Several traditional dining environments were created to share the process of material procurement, food preparation, unexpected alternative options, and familial traditions that make up Cantonese culinary heritage.
-                </p>
-                <p style="margin-top: var(--space-md); color: var(--caramel-gold); font-weight: 600;">
-                    The work was presented in the exhibition Future Tense at the Hong Kong Art Centre from 1-15 March 2025.
-                </p>
-            </div>
         </div>
     </section>
 
-    <!-- 策展理念区 -->
-    <section class="content-section">
-        <div class="section-inner" style="grid-template-columns: 1fr;">
-            <div class="section-text fade-in-up" style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <div class="chapter-seal" style="display: inline-block; margin-bottom: var(--space-lg);">理念</div>
-                <h2 style="text-align: center;">Curatorial Statement</h2>
-                <p style="font-size: var(--text-lg); line-height: 2; margin-top: var(--space-xl); text-align: justify;">
-                    FUTURE TENSE HONG KONG is an art-technology-driven exploration of the future of the intangible side of Hong Kong's cultural heritage, shaped by social change, climate change, and urban development, as imagined by its residents. This exhibition presents a VR navigation app that immersively maps Hong Kong's cultural heritage, a photography and VR exhibit of food imagery generated by workshop participants using state-of-the-art Stable Diffusion technology, two multimedia artworks by Cyan D'Anjou and Meta Objects Studio that speculate on the visual futures seen in immersive form, and works by Paul Shepherd and Inhwa Yeom that immerses the audience in two techno-culture worlds reflecting our own cultural idiosyncrasies. By amplifying the voices and imaginations of its people, the exhibition fosters a collective dialogue about the preservation and transformation of Hong Kong's heritage in an ever-evolving world.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <script src="js/main.js"></script>
+    <script src="js/particles.js"></script>
     <script>
-        // 滚动触发动画
+        // 汉堡菜单功能
+        function toggleMenu() {
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+            const menuDropdown = document.getElementById('menuDropdown');
+
+            hamburgerBtn.classList.toggle('active');
+            menuDropdown.classList.toggle('show');
+        }
+
+        // 点击页面其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const menuDropdown = document.getElementById('menuDropdown');
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+
+            if (hamburgerMenu && !hamburgerMenu.contains(event.target)) {
+                menuDropdown.classList.remove('show');
+                hamburgerBtn.classList.remove('active');
+            }
+        });
+
+        // 阻止菜单内部点击事件冒泡
+        const hamburgerMenu = document.querySelector('.hamburger-menu');
+        if (hamburgerMenu) {
+            hamburgerMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        }
+
+        // 滚动动画
         const observerOptions = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.2
+            threshold: 0.1
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -240,11 +545,12 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.fade-in-up, .section-text, .section-media').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(40px)';
-            el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            observer.observe(el);
+        document.querySelectorAll('.section-inner').forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(40px)';
+            section.style.transition = 'all 0.8s ease-out';
+            section.style.transitionDelay = `${index * 0.2}s`;
+            observer.observe(section);
         });
     </script>
 </body>
