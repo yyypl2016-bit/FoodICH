@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What You See is What You Eat</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Menu -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" onclick="toggleMenu()">
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="index.html" class="menu-item">Home</a>
+            <a href="about.html" class="menu-item">Team</a>
+            <a href="exhibition.html" class="menu-item">Exhibition</a>
+            <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+            <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+        </div>
+    </div>
+
+    <!-- 3D Scene Container -->
+    <div id="scene-container">
+        <div class="hero-title">
+            <h1>What You See is What You Eat</h1>
+            <div class="subtitle">by Studio for Narrative Spaces</div>
+        </div>
+
+        <div class="scene-controls">
+            <button class="control-btn" onclick="resetCamera()">Reset View</button>
+            <div class="scene-hint">Drag to rotate · Scroll to zoom · Click dishes to explore</div>
+        </div>
+    </div>
+
+    <!-- Dish Detail Modal -->
+    <div class="dish-modal" id="dishModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDishModal()"></button>
+            <div class="modal-inner">
+                <div class="modal-text">
+                    <h2 id="modalDishTitle"></h2>
+                    <span class="dish-subtitle" id="modalDishSubtitle"></span>
+                    <div id="modalDishDescription"></div>
+                </div>
+                <div class="modal-media">
+                    <div class="media-canvas" id="modalMediaCanvas"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        // 3D Scene Setup - Preserved from v2
+        let scene, camera, renderer, controls;
+        let fbxModels = [];
+        let textMesh;
+        let animationId;
+        let isAnimating = true;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let hoveredModel = null;
+        let isHovering = false;
+
+        // Model configuration with dish IDs for modal
+        const modelConfig = [
+            { path: '../models/claypot-rice.fbx', dishId: 'claypot' },
+            { path: '../models/meat-bun.fbx', dishId: 'steam-buns' },
+            { path: '../models/garden-tofu.fbx', dishId: 'hakka-tofu' },
+            { path: '../models/healthy-ribs.fbx', dishId: null },
+            { path: '../models/spicy-ribs.fbx', dishId: null },
+            { path: '../models/preserved-veg-pork.fbx', dishId: null },
+            { path: '../models/vermicelli-shrimp.fbx', dishId: null }
+        ];
+
+        // Particle colors - colorful like v2
+        const particleColors = [0xff6b6b, 0xff2e8f, 0xff9021, 0x94ed5c, 0xfeca57, 0xff9ff3, 0xbaeaa9];
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 50, 200);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 50);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('scene-container').appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = true;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            addLights();
+            create3DText();
+            loadFBXModels();
+            addParticles();
+
+            animate();
+
+            window.addEventListener('resize', onWindowResize, false);
+            renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+            renderer.domElement.addEventListener('click', onMouseClick, false);
+            renderer.domElement.addEventListener('touchstart', onTouchStart, false);
+            renderer.domElement.addEventListener('touchend', onTouchEnd, false);
+        }
+
+        function addLights() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            directionalLight.position.set(50, 50, 50);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            const pointLight1 = new THREE.PointLight(0xff6b6b, 0.3, 100);
+            pointLight1.position.set(20, 20, 20);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.3, 100);
+            pointLight2.position.set(-20, -20, 20);
+            scene.add(pointLight2);
+        }
+
+        function create3DText() {
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+                // Food-themed colors from v2
+                const textLines = [
+                    { text: 'WHAT YOU', color: 0xFF6347, height: 1 },    // Tomato Red
+                    { text: 'SEE', color: 0x568203, height: 4 },         // Avocado Green
+                    { text: 'IS WHAT YOU', color: 0xD2691E, height: 1 }, // Chocolate Brown
+                    { text: 'EAT', color: 0xF5DEB3, height: 4 }          // Wheat
+                ];
+
+                const textGroup = new THREE.Group();
+                const lineHeight = 4;
+                const totalHeight = (textLines.length - 1) * lineHeight;
+
+                textLines.forEach((line, index) => {
+                    const material = new THREE.MeshPhongMaterial({
+                        color: line.color,
+                        shininess: 80,
+                        transparent: true,
+                        opacity: 0.95
+                    });
+
+                    const textGeometry = new THREE.TextGeometry(line.text, {
+                        font: font,
+                        size: 3,
+                        height: line.height,
+                        curveSegments: 12,
+                        bevelEnabled: true,
+                        bevelThickness: 0.1,
+                        bevelSize: 0.1,
+                        bevelSegments: 5
+                    });
+
+                    textGeometry.computeBoundingBox();
+                    const box = textGeometry.boundingBox;
+                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
+                    const centerOffsetZ = -0.5 * (box.max.z - box.min.z);
+                    textGeometry.translate(centerOffsetX, 0, centerOffsetZ);
+
+                    const mesh = new THREE.Mesh(textGeometry, material);
+                    mesh.position.y = (totalHeight / 2) - (index * lineHeight);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+
+                    textGroup.add(mesh);
+                });
+
+                scene.add(textGroup);
+                textMesh = textGroup;
+            });
+        }
+
+        function loadFBXModels() {
+            const loader = new THREE.FBXLoader();
+
+            modelConfig.forEach((config, index) => {
+                loader.load(config.path, function(object) {
+                    object.scale.setScalar(0.08);
+                    object.rotation.x = Math.PI * 40 / 180;
+
+                    const angle = (index / modelConfig.length) * Math.PI * 2;
+                    const radius = 30;
+                    object.position.x = Math.cos(angle) * radius;
+                    object.position.z = Math.sin(angle) * radius;
+                    object.position.y = 0;
+
+                    object.userData = {
+                        angle: angle,
+                        radius: radius,
+                        rotationSpeed: 0.002,
+                        originalScale: 0.08,
+                        dishId: config.dishId,
+                        isHovered: false
+                    };
+
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+
+                    object.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) {
+                                const mats = Array.isArray(child.material) ? child.material : [child.material];
+                                mats.forEach(mat => {
+                                    if (mat.map) {
+                                        mat.map.flipY = true;
+                                        mat.map.needsUpdate = true;
+                                    }
+                                    mat.needsUpdate = true;
+                                });
+                            }
+                        }
+                    });
+
+                    scene.add(object);
+                    fbxModels.push(object);
+                }, undefined, function(error) {
+                    console.error('FBX Load Failed:', config.path, error);
+                });
+            });
+        }
+
+        function addParticles() {
+            const particleCount = 800;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+
+                const color = new THREE.Color(particleColors[Math.floor(Math.random() * particleColors.length)]);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+            }
+
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 1.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+        }
+
+        function animate() {
+            if (isAnimating) {
+                animationId = requestAnimationFrame(animate);
+            }
+
+            const time = Date.now() * 0.001;
+
+            if (!isHovering) {
+                if (textMesh) {
+                    textMesh.lookAt(camera.position);
+                    textMesh.position.y = Math.sin(time * 0.5) * 1;
+                }
+
+                fbxModels.forEach((model, index) => {
+                    if (model.userData && !model.userData.isHovered) {
+                        model.userData.angle += model.userData.rotationSpeed;
+                        model.position.x = Math.cos(model.userData.angle) * model.userData.radius;
+                        model.position.z = Math.sin(model.userData.angle) * model.userData.radius;
+                        model.position.y = Math.sin(time * 0.3 + index) * 6;
+                        model.rotation.y += 0.01;
+                    }
+                });
+
+                if (controls.autoRotate) {
+                    controls.update();
+                }
+            } else {
+                const wasAutoRotate = controls.autoRotate;
+                controls.autoRotate = false;
+                controls.update();
+                controls.autoRotate = wasAutoRotate;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function resetCamera() {
+            camera.position.set(0, 0, 50);
+            controls.reset();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function getEventCoordinates(event) {
+            let clientX, clientY;
+
+            if (event.touches && event.touches.length > 0) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else if (event.changedTouches && event.changedTouches.length > 0) {
+                clientX = event.changedTouches[0].clientX;
+                clientY = event.changedTouches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+
+            return {
+                x: (clientX / window.innerWidth) * 2 - 1,
+                y: -(clientY / window.innerHeight) * 2 + 1
+            };
+        }
+
+        function checkModelIntersection(event) {
+            const coords = getEventCoordinates(event);
+            mouse.x = coords.x;
+            mouse.y = coords.y;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(fbxModels, true);
+
+            if (intersects.length > 0) {
+                let targetModel = intersects[0].object;
+                while (targetModel.parent && !fbxModels.includes(targetModel)) {
+                    targetModel = targetModel.parent;
+                }
+
+                if (fbxModels.includes(targetModel)) {
+                    return targetModel;
+                }
+            }
+
+            return null;
+        }
+
+        function onMouseMove(event) {
+            const targetModel = checkModelIntersection(event);
+
+            if (targetModel && targetModel.userData.dishId) {
+                if (hoveredModel !== targetModel) {
+                    if (hoveredModel) {
+                        resetModelState(hoveredModel);
+                    }
+                    hoveredModel = targetModel;
+                    setModelHovered(hoveredModel);
+                }
+                renderer.domElement.style.cursor = 'pointer';
+                isHovering = true;
+            } else {
+                if (hoveredModel) {
+                    resetModelState(hoveredModel);
+                    hoveredModel = null;
+                }
+                renderer.domElement.style.cursor = 'default';
+                isHovering = false;
+            }
+        }
+
+        function onMouseClick(event) {
+            if (hoveredModel && hoveredModel.userData.dishId) {
+                openDishModal(hoveredModel.userData.dishId);
+            }
+        }
+
+        function onTouchStart(event) {
+            event.preventDefault();
+            const targetModel = checkModelIntersection(event);
+
+            if (targetModel && targetModel.userData.dishId) {
+                if (hoveredModel && hoveredModel !== targetModel) {
+                    resetModelState(hoveredModel);
+                }
+                hoveredModel = targetModel;
+                setModelHovered(hoveredModel);
+                isHovering = true;
+            }
+        }
+
+        function onTouchEnd(event) {
+            event.preventDefault();
+            const targetModel = checkModelIntersection(event);
+
+            if (targetModel && hoveredModel === targetModel && targetModel.userData.dishId) {
+                openDishModal(targetModel.userData.dishId);
+            }
+
+            if (hoveredModel) {
+                resetModelState(hoveredModel);
+                hoveredModel = null;
+            }
+            isHovering = false;
+        }
+
+        function setModelHovered(model) {
+            if (model.userData) {
+                model.userData.isHovered = true;
+                const targetScale = model.userData.originalScale * 1.2;
+                model.scale.setScalar(targetScale);
+
+                model.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.emissive = new THREE.Color(0x444444);
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+            }
+        }
+
+        function resetModelState(model) {
+            if (model.userData) {
+                model.userData.isHovered = false;
+                model.scale.setScalar(model.userData.originalScale);
+
+                model.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.emissive = new THREE.Color(0x000000);
+                            mat.needsUpdate = true;
+                        });
+                    }
+                });
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
