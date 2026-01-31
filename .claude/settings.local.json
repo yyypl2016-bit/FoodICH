@@ -9,7 +9,9 @@
       "WebFetch(domain:www.fore-seen-property.com)",
       "Bash(cmd /c dir x:projectsweb3dFoodICH)",
       "Bash(gh auth:*)",
-      "Bash(brew install:*)"
+      "Bash(brew install:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(gh ssh-key add:*)"
     ]
   }
 }
