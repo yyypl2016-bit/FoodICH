@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - What You See is What You Eat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f5f5f0;
+            --accent-color: #c9a961;
+            --text-dark: #2a2a2a;
+            --text-light: #f5f5f0;
+            --border-color: rgba(201, 169, 97, 0.2);
+            --transition-duration: 0.4s;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        /* 粒子背景容器 */
+        #particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 24px 40px;
+            background: linear-gradient(180deg, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(201, 169, 97, 0.7);
+            line-height: 1;
+        }
+
+        .nav-menu {
+            display: none;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-menu.active {
+            display: flex;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            transition: color var(--transition-duration) ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-color);
+            transition: width var(--transition-duration) ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 汉堡菜单 */
+        .hamburger-menu {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .hamburger-btn {
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: 1px solid rgba(245, 245, 240, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            gap: 5px;
+        }
+
+        .hamburger-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(201, 169, 97, 0.05);
+        }
+
+        .hamburger-line {
+            width: 18px;
+            height: 1px;
+            background: var(--text-light);
+            transition: all var(--transition-duration) ease;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.98) 0%, rgba(26, 26, 26, 0.95) 100%);
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            border-radius: 4px;
+            padding: 24px 0;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scaleY(0.95);
+            transform-origin: top right;
+            transition: all var(--transition-duration) ease;
+            min-width: 200px;
+        }
+
+        .menu-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scaleY(1);
+        }
+
+        .menu-item {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 12px 28px;
+            transition: all var(--transition-duration) ease;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent-color);
+            transform: scaleY(0);
+            transform-origin: center;
+            transition: transform var(--transition-duration) ease;
+        }
+
+        .menu-item:hover {
+            color: var(--accent-color);
+            background: rgba(201, 169, 97, 0.08);
+        }
+
+        .menu-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 140px 40px 80px;
+            position: relative;
+        }
+
+        /* 页面标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: var(--text-light);
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            color: rgba(245, 245, 240, 0.7);
+            font-weight: 300;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* 团队成员区域 */
+        .team-section {
+            width: 100%;
+            position: relative;
+        }
+
+        /* 团队成员卡片 */
+        .team-member {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            backdrop-filter: blur(20px);
+            transition: all var(--transition-duration) ease;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .team-member:nth-child(1) { animation-delay: 0.3s; }
+        .team-member:nth-child(2) { animation-delay: 0.4s; }
+        .team-member:nth-child(3) { animation-delay: 0.5s; }
+        .team-member:nth-child(4) { animation-delay: 0.6s; }
+        .team-member:nth-child(5) { animation-delay: 0.7s; }
+        .team-member:nth-child(6) { animation-delay: 0.8s; }
+
+        .team-member.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .team-member:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 60px rgba(201, 169, 97, 0.15);
+        }
+
+        /* 头像容器 */
+        .seal-container {
+            position: relative;
+            flex-shrink: 0;
+            width: 160px;
+            height: 160px;
+        }
+
+        .avatar-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(201, 169, 97, 0.3);
+            transition: all var(--transition-duration) ease;
+        }
+
+        .team-member:hover .avatar-circle {
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .seal-border {
+            position: absolute;
+            inset: -8px;
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            border-radius: 4px;
+            transform: rotate(-3deg);
+            z-index: -1;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .team-member:hover .seal-border {
+            border-color: var(--accent-color);
+            transform: rotate(0deg);
+        }
+
+        /* Partner Logo */
+        .partner-logo {
+            width: 140px !important;
+            height: 140px !important;
+            object-fit: contain !important;
+            background: rgba(245, 245, 240, 0.05);
+            padding: 20px;
+            border-radius: 8px !important;
+            border: 1px solid rgba(201, 169, 97, 0.2) !important;
+        }
+
+        /* 成员信息 */
+        .member-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .member-info h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 32px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .member-info .role {
+            font-size: 12px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .member-info p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(245, 245, 240, 0.8);
+            margin: 0;
+        }
+
+        /* 章节分隔 */
+        .chapter-seal {
+            display: inline-block;
+            padding: 8px 24px;
+            background: rgba(201, 169, 97, 0.1);
+            color: var(--accent-color);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: 1px solid var(--accent-color);
+            border-radius: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .section-divider {
+            text-align: center;
+            margin: 80px 0 60px;
+            animation: fadeInUp 0.8s ease-out 0.9s both;
+        }
+
+        .section-divider h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 40px;
+            color: var(--text-light);
+            margin-top: 16px;
+            font-weight: 400;
+        }
+
+        /* 响应式设计 */
+        @media (min-width: 768px) {
+            .hamburger-menu {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .navbar {
+                padding: 16px 20px;
+            }
+
+            .logo-text {
+                font-size: 13px;
+                letter-spacing: 1.5px;
+            }
+
+            .logo-subtitle {
+                font-size: 9px;
+            }
+
+            .container {
+                padding: 100px 20px 60px;
+            }
+
+            .header {
+                margin-bottom: 50px;
+            }
+
+            .team-member {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 30px 20px;
+                margin-bottom: 40px;
+            }
+
+            .seal-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .avatar-circle {
+                width: 120px;
+                height: 120px;
+            }
+
+            .member-info h3 {
+                font-size: 24px;
+            }
+
+            .section-divider {
+                margin: 60px 0 40px;
+            }
+
+            .menu-dropdown {
+                right: 20px;
+                left: 20px;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particle-container"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo-text">FoodICH</div>
+            <div class="logo-subtitle">Narrative Food</div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="food.html" class="nav-link">Food</a></li>
+            <li><a href="exhibition.html" class="nav-link">Exhibition</a></li>
+            <li><a href="https://recfro.github.io/" class="nav-link" target="_blank">Studio</a></li>
+            <li><a href="https://instagram.com/futuretensehk" class="nav-link" target="_blank">Instagram</a></li>
+        </ul>
+
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" onclick="toggleMenu()">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+            <div class="menu-dropdown" id="menuDropdown">
+                <a href="index.html" class="menu-item">Home</a>
+                <a href="about.html" class="menu-item">About</a>
+                <a href="food.html" class="menu-item">Food</a>
+                <a href="exhibition.html" class="menu-item">Exhibition</a>
+                <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+                <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Team</h1>
+            <p>A dedicated team preserving and promoting Cantonese culinary heritage through innovative digital storytelling</p>
+        </div>
+
+        <div class="team-section">
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/raylc.jpg" alt="RAY LC" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>RAY LC</h3>
+                    <p class="role">Founder & Creative Director</p>
+                    <p>RAY (Parsons MFA, UCLA PhD) creates exhibitions and interventions using environmental storytelling and human-machine interactions. He takes inspiration from his own research in human-computer interaction and neuroscience in works that probe human community's evolving relationship with technology. He takes perspectives from his own research in HCI in his artistic practice, with notable exhibitions at New York Hall of Science, Ars Electronica, NeurIPS, CVPR, Osage Gallery, Videotage, Goethe Institute, Hong Kong Arts Centre, PMQ, Science Gallery MSU, National Asian Culture Center Gwangju, IEEE VISAP, SIGGRAPH Asia. RAY founded the Studio for Narrative Spaces: https://recfro.github.io/</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/richard_allen.jpg" alt="Richard Allen" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Richard Allen</h3>
+                    <p class="role">Director, ACIM</p>
+                    <p>Richard Allen is a film scholar whose work is well known the areas of film theory and philosophy, Hitchcock Studies, Indian Cinema, and melodrama. His books include Projecting Illusion (1995), Hitchcock's Romantic Irony (2007), and the forthcoming Storytelling in Hindi Cinema (2025). Since joining the School of Creative Media in 2016, Allen has developed research at the intersection of art and new media. He organized two international conferences on Machine Learning and Art, Art Machines (2019) and Art Machines 2 (2021), and, with Jeffrey Shaw he curated a major exhibition on computational art called Art Machines at the Indra and Harry Banga Gallery, CityUK (2020). As director of the Center for the Center of Applied Computing and Interactive Media (ACIM), Allen is collaborating with Jeffrey Shaw (HKBU) on Future Cinema Systems and as project director of City in Time, an immersive AR Hong Kong cultural heritage installation in collaboration with the Tourism Commission, which is accessible through a mobile app.</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/star_liu.jpg" alt="Liu Sijia Star" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Liu Sijia Star</h3>
+                    <p class="role">PhD Student & Curator</p>
+                    <p>Sijia Liu, also known as Star, is a PhD student at the School of Creative Media, City University of Hong Kong. She earned her MFA from SCM CityU and a BFA from the School of the Art Institute of Chicago. Her extensive experience includes art creation, design, curation, and event planning. As a practitioner in HCI with an artistic background, she explores the potential of GenAI technology to assist individuals in creative professions. Her current research focuses on understanding the influence of dreams on creativity support from a human-centered computing perspective, facilitated by the use of GenAI technology. As a curator, the research-based practice exhibition supported by HKADC, was showcased at Fringe Club. Star's academic work is published at ACM CC, Multimedia, ISEA, etc. Her personal website: starliusijia.com</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/bowen_liu.jpg" alt="Liu Bowen" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Liu Bowen</h3>
+                    <p class="role">Research Assistant & Artist</p>
+                    <p>Bowen is a full-time research assistant at the School of Creative Media. He pursued a masters at Central Academy of Fine Arts, where he exhibited with works in Beijing. His creative scope encompasses generative art, mechanical installations, and visual effects experiments. He is also an artist.</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/xiaoke_zeng.jpg" alt="Zeng Xiaoke" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Zeng Xiaoke</h3>
+                    <p class="role">Research Assistant & Designer</p>
+                    <p>Xiaoke is a full-time research assistant at the School of Creative Media, who came from South China Normal University. He is interested in exploring the creative applications of XR, AIGC, and BCI for supporting future creative processes. He is also a designer and director who created fictional stories and animation videos of future products.</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/sidney.jpg" alt="Prof. Sidney C.H. Cheung" class="avatar-circle">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Prof. Sidney C.H. Cheung</h3>
+                    <p class="role">Professor & Cultural Anthropologist</p>
+                    <p>Prof. Sidney C.H. Cheung received scholarships given by Japanese Government/Monbusho (1984-94) for his undergraduate, masters and doctoral programmes and his anthropological training in Japan. He is the Professor and Associate Director of the Centre for Archaeology and Cultural Heritage Studies. He has been doing research about freshwater fish farming in Hong Kong in order to understand the fishermen and their perspectives on environmental change, sustainable development and wetland conservation. Currently, he is working on an ongoing multi-site research project exploring the impact of the move of American crayfish from the U.S. to Asia and on the global consumption and production of crayfish in China, Japan, and the U.S. Besides academic publications, Cheung was co-hosting three RTHK radio/television programmes entitled: 《港飲食、講文化 (Hong Kong Foodways and Culture)》in 2004, 《文化非主流 (Culture Unconventional)》in 2005,《考飲考食》in 2017/2018, 《味之天下：中華色香味》in 2022 and《藝文谷之味覺漫遊系列》in 2025, through which he was able to bring anthropological perspectives to the mass public. Again, some of his research findings were used for the RTHK documentary series of 《香港故事 (Hong Kong Stories) 》 such as [年年有魚] and [東江逆流] in 2008.</p>
+                </div>
+            </article>
+
+            <!-- 合作伙伴部分 -->
+            <div class="section-divider">
+                <div class="chapter-seal">Partners</div>
+                <h2>Collaboration</h2>
+            </div>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/metaobjects.jpg" alt="Meta Objects" class="partner-logo">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Meta Objects</h3>
+                    <p class="role">Technology Partner</p>
+                    <p>MetaObjects is an art & technology studio based in Hong Kong. MetaObjects worked with the team to create a VR experience that brings the traditional Cantonese cuisine into immersive digital storytelling.</p>
+                </div>
+            </article>
+
+            <article class="team-member">
+                <div class="seal-container">
+                    <img src="images/hkac.jpg" alt="HKAC" class="partner-logo">
+                    <div class="seal-border"></div>
+                </div>
+                <div class="member-info">
+                    <h3>Hong Kong Arts Development Council</h3>
+                    <p class="role">Funding Support</p>
+                    <p>This project is supported by the Hong Kong Arts Development Council (HKADC). The Council's support enables us to preserve and promote Cantonese culinary heritage through innovative digital experiences.</p>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // 粒子系统
+        function initParticles() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('particle-container').appendChild(renderer.domElement);
+
+            camera.position.z = 50;
+
+            // 创建粒子
+            const particleCount = 800;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const particleColor = new THREE.Color(0xc9a961);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+                colors[i * 3] = particleColor.r;
+                colors[i * 3 + 1] = particleColor.g;
+                colors[i * 3 + 2] = particleColor.b;
+            }
+
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 2,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particleSystem.rotation.y += 0.0005;
+                particleSystem.rotation.x += 0.0002;
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // 汉堡菜单功能
+        function toggleMenu() {
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+            const menuDropdown = document.getElementById('menuDropdown');
+
+            hamburgerBtn.classList.toggle('active');
+            menuDropdown.classList.toggle('show');
+        }
+
+        // 点击页面其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const menuDropdown = document.getElementById('menuDropdown');
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+
+            if (hamburgerMenu && !hamburgerMenu.contains(event.target)) {
+                menuDropdown.classList.remove('show');
+                hamburgerBtn.classList.remove('active');
+            }
+        });
+
+        // 阻止菜单内部点击事件冒泡
+        const hamburgerMenu = document.querySelector('.hamburger-menu');
+        if (hamburgerMenu) {
+            hamburgerMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+        });
+
+        // 滚动触发动画
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // 观察所有团队成员卡片
+        document.querySelectorAll('.team-member').forEach(member => {
+            observer.observe(member);
+        });
+    </script>
+</body>
+</html>

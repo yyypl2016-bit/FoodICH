@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakka Stuffed Tofu - What You See is What You Eat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary-color: #1a1a1a; --secondary-color: #f5f5f0; --accent-color: #c9a961; --text-dark: #2a2a2a; --text-light: #f5f5f0; --border-color: rgba(201,169,97,0.2); --transition-duration: 0.4s; }
+        body { margin: 0; padding: 0; overflow-x: hidden; background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); font-family: 'Inter',-apple-system,BlinkMacSystemFont,sans-serif; color: var(--text-light); min-height: 100vh; }
+        #particle-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 24px 40px; background: linear-gradient(180deg,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0) 100%); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; animation: slideDown 0.8s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .logo-section { display: flex; flex-direction: column; gap: 4px; }
+        .logo-text { font-family: 'Crimson Pro',serif; font-size: 18px; font-weight: 600; letter-spacing: 1px; color: var(--accent-color); line-height: 1; }
+        .logo-subtitle { font-size: 10px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,97,0.7); line-height: 1; }
+        .nav-menu { display: none; gap: 40px; list-style: none; }
+        .nav-menu.active { display: flex; }
+        .nav-link { color: var(--text-light); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; position: relative; transition: color var(--transition-duration) ease; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--accent-color); transition: width var(--transition-duration) ease; }
+        .nav-link:hover { color: var(--accent-color); }
+        .nav-link:hover::after { width: 100%; }
+        .hamburger-menu { position: relative; z-index: 1001; }
+        .hamburger-btn { width: 44px; height: 44px; background: transparent; border: 1px solid rgba(245,245,240,0.3); border-radius: 4px; cursor: pointer; transition: all var(--transition-duration) ease; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0; gap: 5px; }
+        .hamburger-btn:hover { border-color: var(--accent-color); background: rgba(201,169,97,0.05); }
+        .hamburger-line { width: 18px; height: 1px; background: var(--text-light); transition: all var(--transition-duration) ease; }
+        .hamburger-btn.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(8px,8px); }
+        .hamburger-btn.active .hamburger-line:nth-child(2) { opacity: 0; }
+        .hamburger-btn.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(7px,-7px); }
+        .menu-dropdown { position: absolute; top: 60px; right: 0; background: linear-gradient(135deg,rgba(26,26,26,0.98) 0%,rgba(26,26,26,0.95) 100%); border: 1px solid rgba(201,169,97,0.2); border-radius: 4px; padding: 24px 0; backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transform: translateY(-10px) scaleY(0.95); transform-origin: top right; transition: all var(--transition-duration) ease; min-width: 200px; }
+        .menu-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scaleY(1); }
+        .menu-item { display: block; color: var(--text-light); text-decoration: none; padding: 12px 28px; transition: all var(--transition-duration) ease; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; position: relative; white-space: nowrap; }
+        .menu-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent-color); transform: scaleY(0); transform-origin: center; transition: transform var(--transition-duration) ease; }
+        .menu-item:hover { color: var(--accent-color); background: rgba(201,169,97,0.08); }
+        .menu-item:hover::before { transform: scaleY(1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 140px 40px 80px; position: relative; }
+        .header { text-align: center; margin-bottom: 80px; animation: fadeInUp 1s ease-out 0.2s both; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .header h1 { font-family: 'Crimson Pro',serif; font-size: clamp(40px,6vw,72px); font-weight: 400; margin-bottom: 20px; color: var(--text-light); letter-spacing: -1px; }
+        .header p { font-size: 16px; letter-spacing: 0.5px; color: rgba(245,245,240,0.7); font-weight: 300; max-width: 800px; margin: 0 auto; line-height: 1.8; }
+        .model-section { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 80px; align-items: center; animation: fadeInUp 1s ease-out 0.3s both; }
+        .model-container { height: 600px; background: rgba(26,26,26,0.4); border: 1px solid var(--border-color); border-radius: 8px; backdrop-filter: blur(10px); position: relative; overflow: hidden; }
+        .model-canvas { width: 100%; height: 100%; }
+        .content-block { display: flex; flex-direction: column; gap: 40px; }
+        .content-section { padding: 40px; background: rgba(26,26,26,0.6); border: 1px solid var(--border-color); border-radius: 8px; backdrop-filter: blur(20px); transition: all var(--transition-duration) ease; animation: fadeInUp 0.8s ease-out both; }
+        .content-section:nth-child(1) { animation-delay: 0.4s; }
+        .content-section:nth-child(2) { animation-delay: 0.5s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+        .content-section:hover { transform: translateY(-8px); border-color: var(--accent-color); box-shadow: 0 20px 60px rgba(201,169,97,0.15); }
+        .content-section h2 { font-family: 'Crimson Pro',serif; font-size: 32px; color: var(--text-light); margin-bottom: 16px; font-weight: 600; }
+        .section-label { font-size: 12px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-weight: 500; }
+        .content-section p { font-size: 14px; line-height: 1.8; color: rgba(245,245,240,0.8); margin: 0; }
+        .content-section ul { list-style: none; font-size: 14px; line-height: 1.8; color: rgba(245,245,240,0.8); }
+        .content-section li { padding-left: 20px; margin-bottom: 8px; position: relative; }
+        .content-section li::before { content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 4px; background: var(--accent-color); border-radius: 50%; }
+        @media(min-width:768px) { .hamburger-menu { display: none; } .nav-menu { display: flex!important; } }
+        @media(max-width:767px) { .navbar { padding: 16px 20px; } .logo-text { font-size: 13px; letter-spacing: 1.5px; } .logo-subtitle { font-size: 9px; } .container { padding: 100px 20px 60px; } .header { margin-bottom: 50px; } .model-section { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; } .model-container { height: 400px; } .content-section { padding: 30px 20px; margin-bottom: 20px; } .content-section h2 { font-size: 24px; } .menu-dropdown { right: 20px; left: 20px; min-width: auto; } }
+    </style>
+</head>
+<body>
+    <div id="particle-container"></div>
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo-text">FoodICH</div>
+            <div class="logo-subtitle">Narrative Food</div>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="food.html" class="nav-link">Food</a></li>
+            <li><a href="exhibition.html" class="nav-link">Exhibition</a></li>
+            <li><a href="https://recfro.github.io/" class="nav-link" target="_blank">Studio</a></li>
+            <li><a href="https://instagram.com/futuretensehk" class="nav-link" target="_blank">Instagram</a></li>
+        </ul>
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" onclick="toggleMenu()">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+            <div class="menu-dropdown" id="menuDropdown">
+                <a href="index.html" class="menu-item">Home</a>
+                <a href="about.html" class="menu-item">About</a>
+                <a href="food.html" class="menu-item">Food</a>
+                <a href="exhibition.html" class="menu-item">Exhibition</a>
+                <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+                <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h1>Hakka Stuffed Tofu</h1>
+            <p>A culinary masterpiece combining soft tofu with flavorful meat filling, a signature dish of Hakka heritage</p>
+        </div>
+        <div class="model-section">
+            <div class="model-container">
+                <canvas class="model-canvas"></canvas>
+            </div>
+            <div class="content-block">
+                <div class="content-section">
+                    <p class="section-label">Cultural Heritage</p>
+                    <h2>Hakka Tradition</h2>
+                    <p>Hakka people, traditionally mountain dwellers, developed this signature dish as a celebration of resourcefulness and community. The combination of protein-rich tofu with savory meat filling reflects their agricultural background and values of nourishment and togetherness.</p>
+                </div>
+                <div class="content-section">
+                    <p class="section-label">Primary Components</p>
+                    <h2>Ingredients</h2>
+                    <ul>
+                        <li>Silken or firm tofu cubes</li>
+                        <li>Ground pork or mixture of meats</li>
+                        <li>Minced water chestnuts</li>
+                        <li>Scallions and garlic</li>
+                        <li>Soy sauce and oyster sauce</li>
+                        <li>Sesame oil and white pepper</li>
+                    </ul>
+                </div>
+                <div class="content-section">
+                    <p class="section-label">Preparation</p>
+                    <h2>Cooking Technique</h2>
+                    <p>Tofu is carefully cut into squares and gently hollowed to create a pocket for the filling. The meat mixture is seasoned with aromatic ingredients and stuffed into each tofu piece. They are then pan-fried until golden, creating a delicate contrast between the crispy exterior and the tender interior.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script>
+        function initParticles(){const e=document.getElementById("particle-container"),t=new THREE.Scene,i=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,.1,1e3),o=new THREE.WebGLRenderer({alpha:!0,antialias:!0});o.setSize(window.innerWidth,window.innerHeight),o.setClearColor(0,0),e.appendChild(o.domElement),i.position.z=50;const n=new THREE.BufferGeometry,r=new Float32Array(2400),a=new Float32Array(2400),c=new THREE.Color(12966305);for(let e=0;e<800;e++)r[3*e]=(Math.random()-.5)*200,r[3*e+1]=(Math.random()-.5)*200,r[3*e+2]=(Math.random()-.5)*100,a[3*e]=c.r,a[3*e+1]=c.g,a[3*e+2]=c.b;n.setAttribute("position",new THREE.BufferAttribute(r,3)),n.setAttribute("color",new THREE.BufferAttribute(a,3));const s=new THREE.PointsMaterial({size:2,vertexColors:!0,transparent:!0,opacity:.4,blending:THREE.AdditiveBlending}),l=new THREE.Points(n,s);function d(){requestAnimationFrame(d),l.rotation.y+=.0005,l.rotation.x+=.0002,o.render(t,i)}t.add(l),d(),window.addEventListener("resize",()=>{i.aspect=window.innerWidth/window.innerHeight,i.updateProjectionMatrix(),o.setSize(window.innerWidth,window.innerHeight)})}
+        function toggleMenu(){document.querySelector(".hamburger-btn").classList.toggle("active"),document.getElementById("menuDropdown").classList.toggle("show")}
+        }
+
+        document.addEventListener("click",function(e){const t=document.querySelector(".hamburger-menu"),i=document.getElementById("menuDropdown"),o=document.querySelector(".hamburger-btn");t&&!t.contains(e.target)&&(i.classList.remove("show"),o.classList.remove("active"))});const e=document.querySelector(".hamburger-menu");e&&e.addEventListener("click",function(e){e.stopPropagation()}),window.addEventListener("DOMContentLoaded",()=>{initParticles()})
+    </script>
+</body>
+</html>
