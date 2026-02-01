@@ -6,6 +6,24 @@
     <title>Exhibition & VR - What You See is What You Eat</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <style>
+        #logo-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            width: 200px;
+            height: 120px;
+            transition: transform 0.3s ease;
+        }
+        #logo-container:hover {
+            transform: scale(1.05);
+        }
+        #logo-container canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <!-- Particle Background -->
@@ -27,12 +45,15 @@
         </div>
     </div>
 
+    <!-- 3D Logo -->
+    <div id="logo-container"></div>
+
     <!-- Main Content -->
     <div class="container">
-        <div class="page-header">
-            <h1>Exhibition & VR</h1>
-            <div class="subtitle">Future Tense Hong Kong</div>
-            <p>1-15 March 2025 · Hong Kong Arts Centre Pao Galleries</p>
+        <div class="page-header" style="margin-bottom: 3rem; padding-bottom: 2rem;">
+            <h1 style="font-size: 1.2rem; margin-bottom: 0.3rem;">Exhibition & VR</h1>
+            <div class="subtitle" style="font-size: 0.75rem;">Future Tense Hong Kong</div>
+            <p style="font-size: 0.8rem; margin-top: 0.5rem;">1-15 March 2025 · Hong Kong Arts Centre Pao Galleries</p>
         </div>
 
         <div class="exhibition-content">
@@ -78,5 +99,101 @@
 
     <!-- Scripts -->
     <script src="js/main.js"></script>
+
+    <!-- 3D Logo Script -->
+    <script>
+        // 3D Logo Setup
+        let logoScene, logoCamera, logoRenderer, logoTextMesh;
+
+        function initLogo() {
+            // Scene
+            logoScene = new THREE.Scene();
+
+            // Camera
+            logoCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+            logoCamera.position.set(0, 0, 25);
+
+            // Renderer
+            logoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            logoRenderer.setSize(200, 120);
+            logoRenderer.setClearColor(0x000000, 0);
+            document.getElementById('logo-container').appendChild(logoRenderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            logoScene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 10, 10);
+            logoScene.add(directionalLight);
+
+            // Load Font and Create Text
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+                const textLines = [
+                    { text: 'WYS', color: 0xFF6347, height: 0.3, size: 1.5 },
+                    { text: 'is', color: 0x568203, height: 0.3, size: 0.8 },
+                    { text: 'WYE', color: 0xF5DEB3, height: 0.3, size: 1.5 }
+                ];
+
+                const textGroup = new THREE.Group();
+                const lineHeight = 1.8;
+                const totalHeight = (textLines.length - 1) * lineHeight;
+
+                textLines.forEach((line, index) => {
+                    const material = new THREE.MeshPhongMaterial({
+                        color: line.color,
+                        shininess: 80,
+                        transparent: true,
+                        opacity: 0.95
+                    });
+
+                    const textGeometry = new THREE.TextGeometry(line.text, {
+                        font: font,
+                        size: line.size,
+                        height: line.height,
+                        curveSegments: 8,
+                        bevelEnabled: true,
+                        bevelThickness: 0.05,
+                        bevelSize: 0.05,
+                        bevelSegments: 3
+                    });
+
+                    textGeometry.computeBoundingBox();
+                    const box = textGeometry.boundingBox;
+                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
+                    textGeometry.translate(centerOffsetX, 0, 0);
+
+                    const mesh = new THREE.Mesh(textGeometry, material);
+                    mesh.position.y = (totalHeight / 2) - (index * lineHeight);
+
+                    textGroup.add(mesh);
+                });
+
+                logoScene.add(textGroup);
+                logoTextMesh = textGroup;
+                animateLogo();
+            });
+
+            // Click handler
+            logoRenderer.domElement.style.cursor = 'pointer';
+            logoRenderer.domElement.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        }
+
+        function animateLogo() {
+            requestAnimationFrame(animateLogo);
+
+            if (logoTextMesh) {
+                logoTextMesh.rotation.y += 0.005;
+            }
+
+            logoRenderer.render(logoScene, logoCamera);
+        }
+
+        // Initialize logo when page loads
+        window.addEventListener('load', initLogo);
+    </script>
 </body>
 </html>
