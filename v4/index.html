@@ -5,6 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What You See is What You Eat</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <style>
+        #logo-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            width: 200px;
+            height: 120px;
+            transition: transform 0.3s ease;
+        }
+        #logo-container:hover {
+            transform: scale(1.05);
+        }
+        #logo-container canvas {
+            display: block;
+        }
+        .studio-credit {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+            font-family: var(--font-sans);
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s ease;
+        }
+        .studio-credit:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Menu -->
@@ -23,12 +56,14 @@
         </div>
     </div>
 
+    <!-- 3D Logo -->
+    <div id="logo-container"></div>
+
+    <!-- Studio Credit -->
+    <div class="studio-credit">by Studio for Narrative Spaces</div>
+
     <!-- 3D Scene Container -->
-    <div id="scene-container">
-        <div class="scene-controls">
-            <button class="control-btn" onclick="resetCamera()">WYS is WYE</button>
-        </div>
-    </div>
+    <div id="scene-container"></div>
 
     <!-- Dish Detail Modal -->
     <div class="dish-modal" id="dishModal">
@@ -451,6 +486,102 @@
         }
 
         init();
+    </script>
+
+    <!-- 3D Logo Script -->
+    <script>
+        // 3D Logo Setup
+        let logoScene, logoCamera, logoRenderer, logoTextMesh;
+
+        function initLogo() {
+            // Scene
+            logoScene = new THREE.Scene();
+
+            // Camera
+            logoCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+            logoCamera.position.set(0, 0, 25);
+
+            // Renderer
+            logoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            logoRenderer.setSize(200, 120);
+            logoRenderer.setClearColor(0x000000, 0);
+            document.getElementById('logo-container').appendChild(logoRenderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            logoScene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 10, 10);
+            logoScene.add(directionalLight);
+
+            // Load Font and Create Text
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+                const textLines = [
+                    { text: 'WYS', color: 0xFF6347, height: 0.3, size: 1.5 },
+                    { text: 'is', color: 0x568203, height: 0.3, size: 0.8 },
+                    { text: 'WYE', color: 0xF5DEB3, height: 0.3, size: 1.5 }
+                ];
+
+                const textGroup = new THREE.Group();
+                const lineHeight = 1.8;
+                const totalHeight = (textLines.length - 1) * lineHeight;
+
+                textLines.forEach((line, index) => {
+                    const material = new THREE.MeshPhongMaterial({
+                        color: line.color,
+                        shininess: 80,
+                        transparent: true,
+                        opacity: 0.95
+                    });
+
+                    const textGeometry = new THREE.TextGeometry(line.text, {
+                        font: font,
+                        size: line.size,
+                        height: line.height,
+                        curveSegments: 8,
+                        bevelEnabled: true,
+                        bevelThickness: 0.05,
+                        bevelSize: 0.05,
+                        bevelSegments: 3
+                    });
+
+                    textGeometry.computeBoundingBox();
+                    const box = textGeometry.boundingBox;
+                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
+                    textGeometry.translate(centerOffsetX, 0, 0);
+
+                    const mesh = new THREE.Mesh(textGeometry, material);
+                    mesh.position.y = (totalHeight / 2) - (index * lineHeight);
+
+                    textGroup.add(mesh);
+                });
+
+                logoScene.add(textGroup);
+                logoTextMesh = textGroup;
+                animateLogo();
+            });
+
+            // Click handler
+            logoRenderer.domElement.style.cursor = 'pointer';
+            logoRenderer.domElement.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        }
+
+        function animateLogo() {
+            requestAnimationFrame(animateLogo);
+
+            if (logoTextMesh) {
+                logoTextMesh.rotation.y += 0.005;
+            }
+
+            logoRenderer.render(logoScene, logoCamera);
+        }
+
+        // Initialize logo when page loads
+        window.addEventListener('load', initLogo);
     </script>
 </body>
 </html>
