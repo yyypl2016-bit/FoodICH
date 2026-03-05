@@ -38,12 +38,12 @@ function getResponsiveLayout() {
     // 大屏：基于视口宽度计算
     const scale = Math.min(vw / 1440, 1);
     return {
-        'win-cover':   { x: vw*0.03,  y: vh*0.08,  w: Math.round(380*scale), zIndex: 10 },
-        'win-video':   { x: vw*0.25,  y: vh*0.04,  w: Math.round(460*scale), zIndex: 12 },
-        'win-desc':    { x: vw*0.62,  y: vh*0.14,  w: Math.round(340*scale), zIndex: 8  },
-        'win-gallery': { x: vw*0.38,  y: vh*0.48,  w: Math.round(360*scale), zIndex: 9  },
-        'win-info':    { x: vw*0.04,  y: vh*0.52,  w: Math.round(260*scale), zIndex: 11 },
-        'win-title':   { x: vw*0.68,  y: vh*0.52,  w: Math.round(220*scale), zIndex: 13 }
+        'win-cover':   { x: vw*0.15,  y: vh*0.15,  w: Math.round(380*scale), zIndex: 10 },
+        'win-video':   { x: vw*0.35,  y: vh*0.10,  w: Math.round(460*scale), zIndex: 12 },
+        'win-desc':    { x: vw*0.60,  y: vh*0.20,  w: Math.round(340*scale), zIndex: 8  },
+        'win-gallery': { x: vw*0.40,  y: vh*0.55,  w: Math.round(360*scale), zIndex: 9  },
+        'win-info':    { x: vw*0.20,  y: vh*0.60,  w: Math.round(260*scale), zIndex: 11 },
+        'win-title':   { x: vw*0.65,  y: vh*0.50,  w: Math.round(220*scale), zIndex: 13 }
     };
 }
 
