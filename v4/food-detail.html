@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Detail - What You See is What You Eat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/detail.css">
+</head>
+<body class="detail-page">
+
+    <!-- Navigation -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" onclick="toggleMenu()">
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="index.html" class="menu-item">Home</a>
+            <a href="about.html" class="menu-item">Team</a>
+            <a href="exhibition.html" class="menu-item">Exhibition</a>
+            <a href="https://recfro.github.io/" class="menu-item" target="_blank">Studio</a>
+            <a href="https://instagram.com/futuretensehk" class="menu-item" target="_blank">Instagram</a>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <button class="detail-back-btn" onclick="history.back()">
+        <span>←</span> Back
+    </button>
+
+    <!-- Particle Background -->
+    <canvas id="detail-particle-canvas"></canvas>
+
+    <!-- Desktop Background Label -->
+    <div class="detail-desktop-bg">
+        <div class="desktop-label" id="desktopLabel"></div>
+    </div>
+
+    <!-- Floating Windows Container -->
+    <div class="windows-container" id="windowsContainer">
+
+        <!-- Window: 主图/封面 -->
+        <div class="float-window" id="win-cover" data-win="cover">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-cover')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-cover')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title" id="winCoverTitle">Cover Image</div>
+            </div>
+            <div class="win-body">
+                <img id="winCoverImg" src="" alt="" />
+            </div>
+        </div>
+
+        <!-- Window: 视频 -->
+        <div class="float-window" id="win-video" data-win="video">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-video')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-video')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title" id="winVideoTitle">Interview 訪問</div>
+            </div>
+            <div class="win-body win-body-video">
+                <video id="winVideo" controls muted loop playsinline>
+                    <source id="winVideoSrc" src="" type="video/mp4">
+                </video>
+            </div>
+        </div>
+
+        <!-- Window: 文字描述 -->
+        <div class="float-window" id="win-desc" data-win="desc">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-desc')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-desc')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title">Description 內容</div>
+            </div>
+            <div class="win-body win-body-scroll">
+                <div class="win-desc-content" id="winDescContent"></div>
+            </div>
+        </div>
+
+        <!-- Window: 图片集 -->
+        <div class="float-window" id="win-gallery" data-win="gallery">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-gallery')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-gallery')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title">Gallery 相片集</div>
+            </div>
+            <div class="win-body win-body-gallery">
+                <div class="gallery-grid" id="winGalleryGrid"></div>
+            </div>
+        </div>
+
+        <!-- Window: 基本信息 -->
+        <div class="float-window" id="win-info" data-win="info">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-info')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-info')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title">Information 資料</div>
+            </div>
+            <div class="win-body">
+                <div class="info-card" id="winInfoCard"></div>
+            </div>
+        </div>
+
+        <!-- Window: 标题卡 (始终可见) -->
+        <div class="float-window float-window-title" id="win-title" data-win="title">
+            <div class="win-titlebar">
+                <div class="win-dots">
+                    <span class="dot dot-red" onclick="closeWindow('win-title')"></span>
+                    <span class="dot dot-yellow" onclick="minimizeWindow('win-title')"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="win-title">Title</div>
+            </div>
+            <div class="win-body win-body-title">
+                <div class="title-card-number" id="titleCardNumber"></div>
+                <div class="title-card-zh" id="titleCardZh"></div>
+                <div class="title-card-en" id="titleCardEn"></div>
+                <div class="title-card-location" id="titleCardLocation"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Taskbar: 显示已关闭/最小化的窗口 -->
+    <div class="detail-taskbar" id="detailTaskbar">
+        <div class="taskbar-label">Windows</div>
+        <div class="taskbar-items" id="taskbarItems"></div>
+    </div>
+
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/detail.js"></script>
+</body>
+</html>
