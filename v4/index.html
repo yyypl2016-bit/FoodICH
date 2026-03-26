@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What You See is What You Eat</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
     <style>
         #logo-container {
             position: fixed;
@@ -183,10 +182,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/fflate.min.js"></script>
     <script src="js/main.js"></script>
 
     <script>
@@ -206,10 +205,10 @@
             { path: '../models/claypot-rice.fbx', dishId: 'claypot' },
             { path: '../models/meat-bun.fbx', dishId: 'steam-buns' },
             { path: '../models/garden-tofu.fbx', dishId: 'hakka-tofu' },
-            { path: '../models/healthy-ribs.fbx', dishId: null },
-            { path: '../models/spicy-ribs.fbx', dishId: null },
-            { path: '../models/preserved-veg-pork.fbx', dishId: null },
-            { path: '../models/vermicelli-shrimp.fbx', dishId: null }
+            { path: '../models/healthy-ribs.fbx', dishId: 'healthy-ribs' },
+            { path: '../models/spicy-ribs.fbx', dishId: 'spicy-ribs' },
+            { path: '../models/preserved-veg-pork.fbx', dishId: 'preserved-veg-pork' },
+            { path: '../models/vermicelli-shrimp.fbx', dishId: 'vermicelli-shrimp' }
         ];
 
         // Particle colors - colorful like v2
@@ -268,57 +267,70 @@
             scene.add(pointLight2);
         }
 
+        function createTextPlane(text, options = {}) {
+            const canvas = document.createElement('canvas');
+            canvas.width = options.canvasWidth || 1024;
+            canvas.height = options.canvasHeight || 256;
+
+            const context = canvas.getContext('2d');
+            const fontSize = options.fontSize || 128;
+            const fontFamily = options.fontFamily || 'Georgia, serif';
+            const fillStyle = options.fillStyle || '#ffffff';
+            const strokeStyle = options.strokeStyle || 'rgba(0, 0, 0, 0.35)';
+            const lineWidth = options.lineWidth || 12;
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.font = `700 ${fontSize}px ${fontFamily}`;
+            context.lineJoin = 'round';
+            context.strokeStyle = strokeStyle;
+            context.lineWidth = lineWidth;
+            context.strokeText(text, canvas.width / 2, canvas.height / 2);
+            context.fillStyle = fillStyle;
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            texture.minFilter = THREE.LinearFilter;
+
+            const geometry = new THREE.PlaneGeometry(options.width || 24, options.height || 6);
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                depthWrite: false
+            });
+
+            return new THREE.Mesh(geometry, material);
+        }
+
         function create3DText() {
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
-                // Food-themed colors from v2
-                const textLines = [
-                    { text: 'WHAT YOU', color: 0xFF6347, height: 1 },    // Tomato Red
-                    { text: 'SEE', color: 0x568203, height: 4 },         // Avocado Green
-                    { text: 'IS WHAT YOU', color: 0xD2691E, height: 1 }, // Chocolate Brown
-                    { text: 'EAT', color: 0xF5DEB3, height: 4 }          // Wheat
-                ];
+            const textLines = [
+                { text: 'WHAT YOU', color: '#FF6347', width: 22, height: 4.2, fontSize: 120 },
+                { text: 'SEE', color: '#568203', width: 16, height: 5.8, fontSize: 170 },
+                { text: 'IS WHAT YOU', color: '#D2691E', width: 24, height: 4.2, fontSize: 110 },
+                { text: 'EAT', color: '#F5DEB3', width: 16, height: 5.8, fontSize: 170 }
+            ];
 
-                const textGroup = new THREE.Group();
-                const lineHeight = 4;
-                const totalHeight = (textLines.length - 1) * lineHeight;
+            const textGroup = new THREE.Group();
+            const lineHeight = 4.2;
+            const totalHeight = (textLines.length - 1) * lineHeight;
 
-                textLines.forEach((line, index) => {
-                    const material = new THREE.MeshPhongMaterial({
-                        color: line.color,
-                        shininess: 80,
-                        transparent: true,
-                        opacity: 0.95
-                    });
-
-                    const textGeometry = new THREE.TextGeometry(line.text, {
-                        font: font,
-                        size: 3,
-                        height: line.height,
-                        curveSegments: 12,
-                        bevelEnabled: true,
-                        bevelThickness: 0.1,
-                        bevelSize: 0.1,
-                        bevelSegments: 5
-                    });
-
-                    textGeometry.computeBoundingBox();
-                    const box = textGeometry.boundingBox;
-                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
-                    const centerOffsetZ = -0.5 * (box.max.z - box.min.z);
-                    textGeometry.translate(centerOffsetX, 0, centerOffsetZ);
-
-                    const mesh = new THREE.Mesh(textGeometry, material);
-                    mesh.position.y = (totalHeight / 2) - (index * lineHeight);
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-
-                    textGroup.add(mesh);
+            textLines.forEach((line, index) => {
+                const mesh = createTextPlane(line.text, {
+                    width: line.width,
+                    height: line.height,
+                    fillStyle: line.color,
+                    fontSize: line.fontSize,
+                    lineWidth: 18
                 });
 
-                scene.add(textGroup);
-                textMesh = textGroup;
+                mesh.position.y = (totalHeight / 2) - (index * lineHeight);
+                textGroup.add(mesh);
             });
+
+            scene.add(textGroup);
+            textMesh = textGroup;
         }
 
         function loadFBXModels() {
@@ -615,53 +627,32 @@
             directionalLight.position.set(10, 10, 10);
             logoScene.add(directionalLight);
 
-            // Load Font and Create Text
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
-                const textLines = [
-                    { text: 'WYS', color: 0xFF6347, height: 0.3, size: 1.5 },
-                    { text: 'is', color: 0x568203, height: 0.3, size: 0.8 },
-                    { text: 'WYE', color: 0xF5DEB3, height: 0.3, size: 1.5 }
-                ];
+            const textLines = [
+                { text: 'WYS', color: '#FF6347', width: 7.5, height: 2.2, fontSize: 150 },
+                { text: 'is', color: '#568203', width: 4.2, height: 1.6, fontSize: 100 },
+                { text: 'WYE', color: '#F5DEB3', width: 7.5, height: 2.2, fontSize: 150 }
+            ];
 
-                const textGroup = new THREE.Group();
-                const lineHeight = 1.8;
-                const totalHeight = (textLines.length - 1) * lineHeight;
+            const textGroup = new THREE.Group();
+            const lineHeight = 1.8;
+            const totalHeight = (textLines.length - 1) * lineHeight;
 
-                textLines.forEach((line, index) => {
-                    const material = new THREE.MeshPhongMaterial({
-                        color: line.color,
-                        shininess: 80,
-                        transparent: true,
-                        opacity: 0.95
-                    });
-
-                    const textGeometry = new THREE.TextGeometry(line.text, {
-                        font: font,
-                        size: line.size,
-                        height: line.height,
-                        curveSegments: 8,
-                        bevelEnabled: true,
-                        bevelThickness: 0.05,
-                        bevelSize: 0.05,
-                        bevelSegments: 3
-                    });
-
-                    textGeometry.computeBoundingBox();
-                    const box = textGeometry.boundingBox;
-                    const centerOffsetX = -0.5 * (box.max.x - box.min.x);
-                    textGeometry.translate(centerOffsetX, 0, 0);
-
-                    const mesh = new THREE.Mesh(textGeometry, material);
-                    mesh.position.y = (totalHeight / 2) - (index * lineHeight);
-
-                    textGroup.add(mesh);
+            textLines.forEach((line, index) => {
+                const mesh = createTextPlane(line.text, {
+                    width: line.width,
+                    height: line.height,
+                    fillStyle: line.color,
+                    fontSize: line.fontSize,
+                    lineWidth: 16
                 });
 
-                logoScene.add(textGroup);
-                logoTextMesh = textGroup;
-                animateLogo();
+                mesh.position.y = (totalHeight / 2) - (index * lineHeight);
+                textGroup.add(mesh);
             });
+
+            logoScene.add(textGroup);
+            logoTextMesh = textGroup;
+            animateLogo();
 
             // Click handler
             logoRenderer.domElement.style.cursor = 'pointer';

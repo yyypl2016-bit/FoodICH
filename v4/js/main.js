@@ -117,6 +117,71 @@ function randomBetween(min, max) {
 // ===========================
 // DISH DATA
 // ===========================
+function escapeSvgText(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function createPlaceholderImage(title, subtitle, accentColor) {
+    const safeTitle = escapeSvgText(title);
+    const safeSubtitle = escapeSvgText(subtitle);
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+            <defs>
+                <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#111111" />
+                    <stop offset="100%" stop-color="${accentColor}" />
+                </linearGradient>
+            </defs>
+            <rect width="1200" height="800" fill="url(#bg)" />
+            <rect x="70" y="70" width="1060" height="660" rx="30" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" />
+            <text x="90" y="170" fill="rgba(255,255,255,0.55)" font-size="34" font-family="Arial, sans-serif" letter-spacing="8">FOOD ICH</text>
+            <text x="90" y="340" fill="#ffffff" font-size="74" font-family="Georgia, serif">${safeSubtitle}</text>
+            <text x="90" y="430" fill="rgba(255,255,255,0.88)" font-size="48" font-family="Arial, sans-serif">${safeTitle}</text>
+            <text x="90" y="560" fill="rgba(255,255,255,0.62)" font-size="28" font-family="Arial, sans-serif">CONTENT PLACEHOLDER</text>
+            <text x="90" y="610" fill="rgba(255,255,255,0.62)" font-size="28" font-family="Arial, sans-serif">Replace coverImage and mediaItems in main.js</text>
+        </svg>
+    `;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function createPlaceholderDish({
+    number,
+    title,
+    subtitle,
+    location,
+    accentColor,
+    origin,
+    style,
+    pledges,
+    description
+}) {
+    const coverImage = createPlaceholderImage(title, subtitle, accentColor);
+
+    return {
+        number,
+        title,
+        subtitle,
+        location,
+        coverImage,
+        info: [
+            { label: 'Origin', value: origin },
+            { label: 'Style', value: style },
+            { label: 'Pledges', value: pledges, large: true }
+        ],
+        description,
+        mediaItems: [
+            { type: 'image', src: coverImage, alt: `${subtitle} Cover` },
+            { type: 'image', src: createPlaceholderImage(`${title} 影像 01`, subtitle, accentColor), alt: `${subtitle} Placeholder 1` },
+            { type: 'image', src: createPlaceholderImage(`${title} 影像 02`, subtitle, accentColor), alt: `${subtitle} Placeholder 2` }
+        ]
+    };
+}
+
 const dishData = {
     'claypot': {
         number: '(01)',
@@ -198,7 +263,67 @@ const dishData = {
             { type: 'video', src: '../food/hakka-tofu/cut_VID20241215110009.mp4', alt: 'Cutting Process' },
             { type: 'video', src: '../food/hakka-tofu/fry_VID20241215111725.mp4', alt: 'Frying Process' }
         ]
-    }
+    },
+    'healthy-ribs': createPlaceholderDish({
+        number: '(04)',
+        title: '碳烤羊排',
+        subtitle: 'Charcoal Grilled Lamb Chops',
+        location: 'Charcoal Grill · China',
+        accentColor: '#6d8a57',
+        origin: '炭火烤製',
+        style: 'Traditional Grilled Dish',
+        pledges: '待補充',
+        description: [
+            '碳烤羊排是以羊排為主料的傳統烤製菜品，通常先以椒鹽等調料腌製，再置於木炭明火上雙面烤製。炭火的直接加熱能帶出外焦裏嫩的口感，也讓羊排同時具有香料氣息與濃郁的炭火香。',
+            '製作過程中，常會撒上辣椒粉、孜然粉等調味料，烤至表面焦黃後再刷上蜂蜜增添光澤與層次。成菜可搭配葱絲、香菜、檸檬片或主食一同食用，既保留豪邁的烤製風味，也兼具細膩的口感變化。',
+            'Charcoal Grilled Lamb Chops is a traditional grilled dish centered on lamb ribs. Seasoned and cooked over open charcoal, it is prized for its crisp exterior, juicy interior, and the layered aroma of spices and live fire.'
+        ]
+    }),
+    'spicy-ribs': createPlaceholderDish({
+        number: '(05)',
+        title: '瀏陽蒸排骨',
+        subtitle: 'Liuyang Steamed Pork Ribs',
+        location: 'Liuyang · Hunan',
+        accentColor: '#a43f2f',
+        origin: '湖南瀏陽',
+        style: 'Hunan Steamed Dish',
+        pledges: '待補充',
+        description: [
+            '瀏陽蒸排骨是湘菜蒸制類中的代表菜品之一，常以小排骨為主料，搭配瀏陽豆豉醬與豆腐同蒸。這道菜的特色在於豆豉經發酵後的濃郁香氣，能與排骨的鮮嫩口感融合，形成醇厚而有層次的地方風味。',
+            '製作時，排骨通常需先腌製，再拌入豆豉醬後鋪放於豆腐之上進行蒸製。成菜後盤底湯汁濃香，下飯感很強，最後撒上的葱花也能進一步提鮮增香，讓整道菜在氣味、口感和視覺上都更完整。',
+            'Liuyang Steamed Pork Ribs is a representative Hunan steamed dish. It is known for combining tender pork ribs with the fermented aroma of Liuyang douchi sauce, creating a rich, savory flavor with strong regional character.'
+        ]
+    }),
+    'preserved-veg-pork': createPlaceholderDish({
+        number: '(06)',
+        title: '梅菜燒肉',
+        subtitle: 'Braised Pork with Preserved Vegetables',
+        location: 'Hakka · Huizhou',
+        accentColor: '#8a5a44',
+        origin: '客家地區 · 惠州',
+        style: 'Hakka Braised Pork Dish',
+        pledges: '待補充',
+        description: [
+            '梅菜燒肉歷史悠久，與客家飲食文化關係密切，其淵源可追溯至宋代，後來隨著梅菜與五花肉的搭配逐漸定型，演變出具有代表性的客家風味。這道菜不僅是一道家常名菜，也承載著團圓、宴席與節慶的文化意涵。',
+            '製作時多選用帶皮五花肉與梅乾菜，梅菜需提前浸泡去鹽，五花肉則經汆煮、上色、燒製等步驟，讓肉香與梅菜鹹香相互滲透。成菜通常色澤紅亮、口感軟糯，梅菜吸收肉汁後更顯醇厚，是許多家庭記憶中的「壓軸菜」。',
+            'Braised Pork with Preserved Vegetables is closely tied to Hakka culinary tradition. Combining preserved mustard greens with pork belly, it is valued not only for its rich, savory flavor and tender texture, but also for its strong associations with family banquets and festive gatherings.'
+        ]
+    }),
+    'vermicelli-shrimp': createPlaceholderDish({
+        number: '(07)',
+        title: '蒜蓉粉絲蝦煲',
+        subtitle: 'Garlic Vermicelli Shrimp Pot',
+        location: 'Claypot Seafood · China',
+        accentColor: '#4d6f86',
+        origin: '鮮蝦與粉絲煲製',
+        style: 'Garlic Claypot Seafood Dish',
+        pledges: '待補充',
+        description: [
+            '蒜蓉粉絲蝦煲常以鮮蝦、粉絲為主料，搭配蒜末、薑片、豆豉、小葱等輔料製作。這道菜的魅力在於蝦仁鮮嫩彈牙，而粉絲則能充分吸收蒜香與醬汁，入口滑潤又飽滿，呈現出鮮香濃郁的砂鍋風味。',
+            '常見做法是先將粉絲泡軟，蝦仁經簡單腌製去腥增味，再將蒜蓉與調味料炒香後與粉絲、蝦仁一同煲煮或焖製。火候控制很重要，既要讓粉絲吸飽湯汁，也要避免蝦肉久煮變老，這樣才能保留層次分明的口感。',
+            'Garlic Vermicelli Shrimp Pot is built around tender shrimp and vermicelli cooked with garlic-rich sauce in a claypot. Its appeal comes from the contrast between juicy shrimp and noodles that fully absorb the savory broth, creating a dish that is both aromatic and deeply comforting.'
+        ]
+    })
 };
 
 // ===========================
@@ -221,6 +346,8 @@ function openDishModal(dishId) {
     document.getElementById('previewTitleEn').textContent = dish.subtitle;
     document.getElementById('previewTitleZh').textContent = dish.title;
     document.getElementById('previewLocation').textContent = dish.location;
+    const modelLabel = document.getElementById('previewModelLabel');
+    if (modelLabel) modelLabel.textContent = dish.subtitle;
 
     // 主图
     const img = document.getElementById('previewMainImage');
@@ -305,11 +432,12 @@ function startPreviewScene() {
     previewScene.add(pt2);
 
     // 找到对应的主场景模型并克隆
-    const dishToModelIndex = { 'claypot': 0, 'steam-buns': 1, 'hakka-tofu': 2 };
-    const modelIndex = dishToModelIndex[currentPreviewDishId];
+    const sourceModel = typeof fbxModels !== 'undefined'
+        ? fbxModels.find(model => model && model.userData && model.userData.dishId === currentPreviewDishId)
+        : null;
 
-    if (typeof fbxModels !== 'undefined' && fbxModels[modelIndex]) {
-        const cloned = fbxModels[modelIndex].clone();
+    if (sourceModel) {
+        const cloned = sourceModel.clone();
         cloned.position.set(0, 0, 0);
         cloned.scale.setScalar(0.12);
         previewScene.add(cloned);
