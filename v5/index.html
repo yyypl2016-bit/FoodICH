@@ -579,6 +579,7 @@
             uniform float u_time;
             uniform vec2 u_resolution;
             uniform vec2 u_mouse;
+            uniform vec2 u_mouse_vel;
             uniform float u_zoom;
 
             // Simplex-ish hash
@@ -627,51 +628,68 @@
                 vec2 uv = gl_FragCoord.xy / u_resolution.xy;
                 float t = u_time * 0.15;
 
-                // Zoom: scale UV based on camera distance (u_zoom=1.0 at z=50)
+                // Zoom
                 float zoomScale = u_zoom;
                 vec2 zUv = (uv - 0.5) * zoomScale + 0.5;
 
-                // Mouse influence: control flow direction & speed
-                vec2 mouseDir = u_mouse - 0.5;  // center-origin mouse offset
-                float mouseSpeed = length(mouseDir);
-                mouseDir = normalize(mouseDir + 0.001) * smoothstep(0.0, 0.3, mouseSpeed);
+                // === Water ripple disturbance ===
+                vec2 toMouse = zUv - u_mouse;
+                float mouseDist = length(toMouse);
+                vec2 toMouseNorm = toMouse / (mouseDist + 0.001);
 
-                float mouseDist = length(u_mouse - uv);
-                float mouseProximity = smoothstep(0.6, 0.0, mouseDist);
+                // Ripple rings: concentric sine waves expanding from mouse
+                float rippleFreq = 40.0;
+                float rippleWave = sin(mouseDist * rippleFreq - u_time * 3.0);
+                // Decay with distance
+                float rippleDecay = exp(-mouseDist * 8.0);
+                // Only when mouse is moving (vel length > threshold)
+                float velMag = length(u_mouse_vel);
+                float velInfluence = smoothstep(0.001, 0.005, velMag);
+                float ripple = rippleWave * rippleDecay * velInfluence;
 
-                // Flow vector: base direction + mouse-driven direction
-                vec2 flowDir = vec2(1.0, 0.5) + mouseDir * 1.5;
-                float flowSpeed = 0.3 + mouseSpeed * 0.8;
+                // V-shaped wake behind movement direction
+                vec2 velDir = normalize(u_mouse_vel + 0.0001);
+                float behindMouse = dot(toMouse, velDir); // negative = behind
+                float lateralDist = abs(dot(toMouse, vec2(-velDir.y, velDir.x)));
+                // Wake envelope: V shape opening behind mouse
+                float wakeAngle = atan(lateralDist, -behindMouse + 0.001);
+                float wakeEnvelope = smoothstep(1.2, 0.2, wakeAngle) * step(-0.01, -behindMouse);
+                // Wake ripples
+                float wakeDist = length(toMouse);
+                float wakeWave = sin(wakeDist * 30.0 - u_time * 4.0);
+                float wakeDecay = exp(-wakeDist * 6.0);
+                float wake = wakeWave * wakeDecay * wakeEnvelope * velInfluence;
 
-                // Warped domain for organic flow
+                // Combined disturbance as normal displacement
+                float combinedRipple = (ripple + wake) * 0.6;
+                vec2 disturbance = toMouseNorm * combinedRipple * 0.15;
+
+                // === Noise domain with disturbance ===
+                vec2 p = zUv * 3.0 + disturbance;
                 vec2 q = vec2(
-                    fbm(zUv * 3.0 + flowDir * t * flowSpeed),
-                    fbm(zUv * 3.0 + vec2(5.2, 1.3) + flowDir * t * flowSpeed * 0.7)
+                    fbm(p + vec2(0.0, 0.0) + t * 0.3),
+                    fbm(p + vec2(5.2, 1.3) + t * 0.2)
                 );
                 vec2 r = vec2(
-                    fbm(zUv * 3.0 + 4.0 * q + vec2(1.7, 9.2) + t * 0.15),
-                    fbm(zUv * 3.0 + 4.0 * q + vec2(8.3, 2.8) + t * 0.1)
+                    fbm(p + 4.0 * q + vec2(1.7, 9.2) + t * 0.15),
+                    fbm(p + 4.0 * q + vec2(8.3, 2.8) + t * 0.1)
                 );
-                float f = fbm(zUv * 3.0 + 4.0 * r);
+                float f = fbm(p + 4.0 * r);
 
                 // Warmer, brighter palette
-                vec3 colorA = vec3(0.06, 0.04, 0.03);   // deep dark warm
-                vec3 colorB = vec3(0.25, 0.12, 0.06);   // amber glow
-                vec3 colorC = vec3(0.14, 0.06, 0.03);   // copper
-                vec3 colorD = vec3(0.35, 0.20, 0.08);   // warm gold
-                vec3 colorE = vec3(0.10, 0.14, 0.06);   // olive tint
-                vec3 colorF = vec3(0.30, 0.08, 0.12);   // deep rose accent
+                vec3 colorA = vec3(0.06, 0.04, 0.03);
+                vec3 colorB = vec3(0.25, 0.12, 0.06);
+                vec3 colorC = vec3(0.14, 0.06, 0.03);
+                vec3 colorD = vec3(0.35, 0.20, 0.08);
+                vec3 colorE = vec3(0.10, 0.14, 0.06);
+                vec3 colorF = vec3(0.30, 0.08, 0.12);
 
                 vec3 color = mix(colorA, colorB, clamp(f * f * 2.0, 0.0, 1.0));
                 color = mix(color, colorC, clamp(length(q), 0.0, 1.0));
                 color = mix(color, colorD, clamp(length(r.x) * 0.5, 0.0, 1.0));
                 color = mix(color, colorE, clamp(r.y * 0.3 + 0.2, 0.0, 1.0));
 
-                // Mouse proximity glow
-                color += colorF * mouseProximity * 0.5;
-                color += colorD * mouseProximity * mouseProximity * 0.3;
-
-                // Subtle vignette (fixed, doesn't zoom)
+                // Vignette
                 float vignette = 1.0 - 0.35 * length((uv - 0.5) * 1.5);
                 color *= vignette;
 
@@ -716,22 +734,33 @@
         const uTime = gl.getUniformLocation(program, 'u_time');
         const uRes = gl.getUniformLocation(program, 'u_resolution');
         const uMouse = gl.getUniformLocation(program, 'u_mouse');
+        const uMouseVel = gl.getUniformLocation(program, 'u_mouse_vel');
         const uZoom = gl.getUniformLocation(program, 'u_zoom');
 
-        let mouseX = 0.5, mouseY = 0.5;
-        let targetX = 0.5, targetY = 0.5;
+        let rawMouseX = 0.5, rawMouseY = 0.5;
+        let smoothX = 0.5, smoothY = 0.5;
+        let prevSmoothX = 0.5, prevSmoothY = 0.5;
+        let velX = 0.0, velY = 0.0;
         document.addEventListener('mousemove', function(e) {
-            targetX = e.clientX / window.innerWidth;
-            targetY = 1.0 - e.clientY / window.innerHeight;
+            rawMouseX = e.clientX / window.innerWidth;
+            rawMouseY = 1.0 - e.clientY / window.innerHeight;
         });
 
         // Reference camera distance for zoom sync
         const INITIAL_Z = 50.0;
 
         function render(time) {
-            // Smooth mouse interpolation
-            mouseX += (targetX - mouseX) * 0.05;
-            mouseY += (targetY - mouseY) * 0.05;
+            // Smooth mouse position to eliminate jitter
+            smoothX += (rawMouseX - smoothX) * 0.08;
+            smoothY += (rawMouseY - smoothY) * 0.08;
+
+            // Velocity: smoothed delta with exponential decay
+            let frameVelX = (smoothX - prevSmoothX);
+            let frameVelY = (smoothY - prevSmoothY);
+            velX = velX * 0.82 + frameVelX * 0.18;
+            velY = velY * 0.82 + frameVelY * 0.18;
+            prevSmoothX = smoothX;
+            prevSmoothY = smoothY;
 
             // Sync zoom with Three.js camera distance
             let zoomFactor = 1.0;
@@ -742,7 +771,8 @@
 
             gl.uniform1f(uTime, time * 0.001);
             gl.uniform2f(uRes, canvas.width, canvas.height);
-            gl.uniform2f(uMouse, mouseX, mouseY);
+            gl.uniform2f(uMouse, smoothX, smoothY);
+            gl.uniform2f(uMouseVel, velX, velY);
             gl.uniform1f(uZoom, zoomFactor);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             requestAnimationFrame(render);
