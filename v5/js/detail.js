@@ -4,57 +4,22 @@
 // Updated: 2026-03-05 v4.1
 // ===========================
 
-// 从 URL 获取 dishId
 function getDishIdFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get('dish') || 'claypot';
 }
 
-// 窗口初始布局配置（随机散落感）
-const windowLayouts = {
-    'win-cover':   { x: 40,  y: 60,  w: 380, zIndex: 10 },
-    'win-video':   { x: 160, y: 30,  w: 460, zIndex: 12 },
-    'win-desc':    { x: 520, y: 120, w: 340, zIndex: 8  },
-    'win-gallery': { x: 300, y: 300, w: 360, zIndex: 9  },
-    'win-info':    { x: 60,  y: 340, w: 260, zIndex: 11 },
-    'win-title':   { x: 560, y: 320, w: 220, zIndex: 13 }
+let modelPreview = null;
+const detailModelConfig = {
+    'claypot': '../models/claypot-rice.fbx',
+    'steam-buns': '../models/meat-bun.fbx',
+    'hakka-tofu': '../models/garden-tofu.fbx',
+    'healthy-ribs': '../models/healthy-ribs.fbx',
+    'stir-fried-beef': '../models/spicy-ribs.fbx',
+    'preserved-veg-pork': '../models/preserved-veg-pork.fbx',
+    'vermicelli-shrimp': '../models/vermicelli-shrimp.fbx'
 };
 
-// 响应式偏移：在小屏上重新布局
-function getResponsiveLayout() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    if (vw < 900) {
-        return {
-            'win-title':   { x: vw*0.05, y: 70,       w: Math.min(200, vw*0.4), zIndex: 13 },
-            'win-cover':   { x: vw*0.05, y: 180,       w: Math.min(280, vw*0.5), zIndex: 10 },
-            'win-video':   { x: vw*0.35, y: 100,       w: Math.min(320, vw*0.55), zIndex: 12 },
-            'win-desc':    { x: vw*0.05, y: vh*0.5,    w: Math.min(300, vw*0.55), zIndex: 8  },
-            'win-gallery': { x: vw*0.45, y: vh*0.45,   w: Math.min(280, vw*0.5), zIndex: 9  },
-            'win-info':    { x: vw*0.05, y: vh*0.75,   w: Math.min(240, vw*0.45), zIndex: 11 }
-        };
-    }
-
-    // 大屏：基于视口宽度计算
-    const scale = Math.min(vw / 1440, 1);
-    return {
-        'win-cover':   { x: vw*0.15,  y: vh*0.15,  w: Math.round(380*scale), zIndex: 10 },
-        'win-video':   { x: vw*0.35,  y: vh*0.10,  w: Math.round(460*scale), zIndex: 12 },
-        'win-desc':    { x: vw*0.60,  y: vh*0.20,  w: Math.round(340*scale), zIndex: 8  },
-        'win-gallery': { x: vw*0.40,  y: vh*0.55,  w: Math.round(360*scale), zIndex: 9  },
-        'win-info':    { x: vw*0.20,  y: vh*0.60,  w: Math.round(260*scale), zIndex: 11 },
-        'win-title':   { x: vw*0.65,  y: vh*0.50,  w: Math.round(220*scale), zIndex: 13 }
-    };
-}
-
-// 已关闭/最小化的窗口记录
-const windowStates = {};
-let topZIndex = 20;
-
-// ===========================
-// 初始化详情页
-// ===========================
 document.addEventListener('DOMContentLoaded', function () {
     const dishId = getDishIdFromURL();
     const dish = typeof dishData !== 'undefined' ? dishData[dishId] : null;
@@ -64,64 +29,41 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // 填充桌面背景标题
     const desktopLabel = document.getElementById('desktopLabel');
     if (desktopLabel) desktopLabel.textContent = dish.subtitle.toUpperCase();
 
-    // 填充各窗口内容
-    populateWindows(dish);
-
-    // 设置初始布局
-    applyLayout();
-
-    // 绑定拖拽
-    initDraggable();
-
-    // 初始化任务栏
-    updateTaskbar();
-
-    // 图片灯箱
+    populatePage(dish);
     initLightbox();
-
-    // 窗口点击置顶
-    document.querySelectorAll('.float-window').forEach(win => {
-        win.addEventListener('mousedown', () => bringToFront(win.id));
-    });
+    initModelStage(dishId);
 });
 
-// ===========================
-// 填充窗口内容
-// ===========================
-function populateWindows(dish) {
-    // 标题卡
+function populatePage(dish) {
     setEl('titleCardNumber', dish.number);
     setEl('titleCardZh', dish.title);
     setEl('titleCardEn', dish.subtitle);
     setEl('titleCardLocation', dish.location);
 
-    // 封面图
-    const coverImg = document.getElementById('winCoverImg');
-    if (coverImg) {
-        coverImg.src = dish.coverImage;
-        coverImg.alt = dish.title;
-    }
-    setEl('winCoverTitle', `${dish.subtitle} ${dish.title} - Cover`);
+    const mediaItems = Array.isArray(dish.mediaItems) ? dish.mediaItems : [];
+    const displayItems = Array.isArray(dish.displayItems) ? dish.displayItems : [];
+    const galleryItems = Array.isArray(dish.galleryItems) ? dish.galleryItems : [];
+    const videoItems = Array.isArray(dish.videoItems) && dish.videoItems.length > 0
+        ? dish.videoItems
+        : mediaItems.filter(item => item.type === 'video');
 
-    // 视频
-    const videoItems = dish.mediaItems.filter(m => m.type === 'video');
     const videoSrc = document.getElementById('winVideoSrc');
     const videoEl = document.getElementById('winVideo');
     if (videoItems.length > 0 && videoSrc && videoEl) {
         videoSrc.src = videoItems[0].src;
         videoEl.load();
-        setEl('winVideoTitle', `${dish.subtitle} ${dish.title} - Interview 訪問`);
+        setEl('winVideoTitle', '視頻');
     } else {
-        // 没有视频则隐藏视频窗口
         const winVideo = document.getElementById('win-video');
         if (winVideo) winVideo.style.display = 'none';
     }
 
-    // 描述
+    setEl('winDisplayTitle', '圖片展示');
+    setEl('winGalleryTitle', '圖集');
+
     const descContent = document.getElementById('winDescContent');
     if (descContent) {
         descContent.innerHTML = `
@@ -130,38 +72,17 @@ function populateWindows(dish) {
         `;
     }
 
-    // 图片集
     const galleryGrid = document.getElementById('winGalleryGrid');
     if (galleryGrid) {
-        const imageItems = dish.mediaItems.filter(m => m.type === 'image');
-        galleryGrid.innerHTML = imageItems.map(item =>
-            `<img src="${item.src}" alt="${item.alt}" data-lightbox="${item.src}" />`
-        ).join('');
+        galleryGrid.innerHTML = '';
     }
 
-    // 信息卡
+    initDisplayWall(displayItems);
+    initRealityGallery(galleryItems);
+
     const infoCard = document.getElementById('winInfoCard');
     if (infoCard) {
-        infoCard.innerHTML = `
-            <div class="info-row">
-                <span class="info-row-label">中文名</span>
-                <span class="info-row-value">${dish.title}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-row-label">English</span>
-                <span class="info-row-value">${dish.subtitle}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-row-label">Origin</span>
-                <span class="info-row-value">${dish.location}</span>
-            </div>
-            ${dish.info.map(item => `
-                <div class="info-row">
-                    <span class="info-row-label">${item.label}</span>
-                    <span class="info-row-value ${item.large ? 'large' : ''}">${item.value}</span>
-                </div>
-            `).join('')}
-        `;
+        infoCard.innerHTML = buildFragments(dish, displayItems, galleryItems, videoItems);
     }
 }
 
@@ -170,169 +91,231 @@ function setEl(id, text) {
     if (el) el.textContent = text;
 }
 
-// ===========================
-// 布局应用
-// ===========================
-function applyLayout() {
-    const layout = getResponsiveLayout();
-    Object.entries(layout).forEach(([id, pos]) => {
-        const win = document.getElementById(id);
-        if (!win) return;
-        win.style.left = pos.x + 'px';
-        win.style.top  = pos.y + 'px';
-        win.style.width = pos.w + 'px';
-        win.style.zIndex = pos.zIndex;
-        windowStates[id] = { visible: true, minimized: false };
-    });
+function buildFragments(dish, displayItems, galleryItems, videoItems) {
+    const fragments = [
+        { label: 'Dish', value: dish.title },
+        { label: 'Location', value: dish.location },
+        { label: 'Display', value: `${displayItems.length}` },
+        { label: 'Gallery', value: `${galleryItems.length}` },
+        { label: 'Videos', value: `${videoItems.length}` },
+        ...dish.info.map(item => ({ label: item.label, value: item.value, large: item.large }))
+    ];
+
+    if (videoItems.length > 0) {
+        videoItems.slice(0, 3).forEach((item, index) => {
+            fragments.push({
+                label: `Clip ${String(index + 1).padStart(2, '0')}`,
+                value: item.alt
+            });
+        });
+    } else if (dish.description[0]) {
+        fragments.push({
+            label: 'Excerpt',
+            value: dish.description[0]
+        });
+    }
+
+    return fragments.map(item => `
+        <article class="fragment-item">
+            <span class="fragment-item-label">${item.label}</span>
+            <div class="fragment-item-value ${item.large ? 'large' : ''}">${item.value}</div>
+        </article>
+    `).join('');
 }
 
-// ===========================
-// 拖拽系统
-// ===========================
-function initDraggable() {
-    document.querySelectorAll('.float-window').forEach(win => {
-        const titlebar = win.querySelector('.win-titlebar');
-        if (!titlebar) return;
+function initDisplayWall(displayItems) {
+    const displayWall = document.getElementById('winDisplayWall');
+    if (!displayWall) return;
 
-        let isDragging = false;
-        let startX, startY, startLeft, startTop;
+    if (displayItems.length === 0) {
+        displayWall.innerHTML = '<div class="detail-empty-state">暫無可展示圖片</div>';
+        return;
+    }
 
-        titlebar.addEventListener('mousedown', dragStart);
-        titlebar.addEventListener('touchstart', dragStart, { passive: false });
-
-        function dragStart(e) {
-            // 不拦截圆点按钮点击
-            if (e.target.classList.contains('dot')) return;
-
-            isDragging = true;
-            bringToFront(win.id);
-            win.classList.add('is-dragging');
-
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            startX = clientX;
-            startY = clientY;
-            startLeft = parseInt(win.style.left) || 0;
-            startTop  = parseInt(win.style.top)  || 0;
-
-            document.addEventListener('mousemove', dragMove);
-            document.addEventListener('mouseup',   dragEnd);
-            document.addEventListener('touchmove', dragMove, { passive: false });
-            document.addEventListener('touchend',  dragEnd);
-
-            e.preventDefault();
-        }
-
-        function dragMove(e) {
-            if (!isDragging) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            const dx = clientX - startX;
-            const dy = clientY - startY;
-
-            let newLeft = startLeft + dx;
-            let newTop  = startTop  + dy;
-
-            // 边界限制
-            const winW = win.offsetWidth;
-            const winH = win.offsetHeight;
-            newLeft = Math.max(-winW * 0.5, Math.min(window.innerWidth  - winW * 0.5, newLeft));
-            newTop  = Math.max(0,            Math.min(window.innerHeight - 40,         newTop));
-
-            win.style.left = newLeft + 'px';
-            win.style.top  = newTop  + 'px';
-
-            e.preventDefault();
-        }
-
-        function dragEnd() {
-            isDragging = false;
-            win.classList.remove('is-dragging');
-            document.removeEventListener('mousemove', dragMove);
-            document.removeEventListener('mouseup',   dragEnd);
-            document.removeEventListener('touchmove', dragMove);
-            document.removeEventListener('touchend',  dragEnd);
-        }
-    });
-}
-
-// 置顶窗口
-function bringToFront(winId) {
-    topZIndex++;
-    const win = document.getElementById(winId);
-    if (win) win.style.zIndex = topZIndex;
-}
-
-// ===========================
-// 关闭 / 最小化窗口
-// ===========================
-function closeWindow(winId) {
-    const win = document.getElementById(winId);
-    if (!win) return;
-    win.style.display = 'none';
-    windowStates[winId] = { visible: false, minimized: false };
-    updateTaskbar();
-}
-
-function minimizeWindow(winId) {
-    const win = document.getElementById(winId);
-    if (!win) return;
-    win.classList.toggle('minimized');
-    const isMin = win.classList.contains('minimized');
-    windowStates[winId] = { visible: true, minimized: isMin };
-    updateTaskbar();
-}
-
-function restoreWindow(winId) {
-    const win = document.getElementById(winId);
-    if (!win) return;
-    win.style.display = '';
-    win.classList.remove('minimized');
-    windowStates[winId] = { visible: true, minimized: false };
-    bringToFront(winId);
-    updateTaskbar();
-}
-
-// ===========================
-// 任务栏
-// ===========================
-const winNames = {
-    'win-cover':   'Cover',
-    'win-video':   'Video',
-    'win-desc':    'Description',
-    'win-gallery': 'Gallery',
-    'win-info':    'Info',
-    'win-title':   'Title'
-};
-
-function updateTaskbar() {
-    const taskbarItems = document.getElementById('taskbarItems');
-    if (!taskbarItems) return;
-
-    const hiddenOrMin = Object.entries(windowStates).filter(([id, state]) =>
-        !state.visible || state.minimized
-    );
-
-    taskbarItems.innerHTML = hiddenOrMin.map(([id]) => `
-        <button class="taskbar-item" onclick="restoreWindow('${id}')">
-            ${winNames[id] || id}
-        </button>
+    displayWall.innerHTML = displayItems.map(item => `
+        <img src="${item.src}" alt="${item.alt}" data-lightbox-src="${item.src}" data-lightbox-alt="${item.alt}" />
     `).join('');
 
-    // 任务栏有内容时显示
-    const taskbar = document.getElementById('detailTaskbar');
-    if (taskbar) {
-        taskbar.style.display = hiddenOrMin.length > 0 ? 'flex' : 'none';
-    }
+    Array.from(displayWall.querySelectorAll('img')).forEach(image => {
+        image.addEventListener('click', function() {
+            openLightbox(image.dataset.lightboxSrc || image.src, image.dataset.lightboxAlt || image.alt);
+        });
+    });
 }
 
-// ===========================
-// 图片灯箱
-// ===========================
+function initRealityGallery(galleryItems) {
+    const galleryGrid = document.getElementById('winGalleryGrid');
+    if (!galleryGrid) return;
+
+    if (galleryItems.length === 0) {
+        galleryGrid.innerHTML = '<div class="detail-empty-state">暫無圖集素材</div>';
+        return;
+    }
+
+    galleryGrid.innerHTML = galleryItems.map((item, index) =>
+        `<img src="${item.src}" alt="${item.alt}" data-image-index="${index}" />`
+    ).join('');
+
+    const thumbnails = Array.from(galleryGrid.querySelectorAll('img'));
+    const setActiveThumbnail = function(activeIndex) {
+        thumbnails.forEach((thumb, index) => {
+            thumb.classList.toggle('is-active', index === activeIndex);
+        });
+    };
+
+    thumbnails.forEach((thumb, index) => {
+        thumb.addEventListener('click', function() {
+            setActiveThumbnail(index);
+            openLightbox(thumb.src, thumb.alt);
+        });
+    });
+
+    setActiveThumbnail(0);
+}
+
+function getModelPath(dishId) {
+    return detailModelConfig[dishId] || '';
+}
+
+function setModelStatus(text, hidden) {
+    const statusEl = document.getElementById('winModelStatus');
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.classList.toggle('is-hidden', Boolean(hidden));
+}
+
+function initModelStage(dishId) {
+    const stage = document.getElementById('winModelStage');
+    const modelPath = getModelPath(dishId);
+
+    if (!stage) return;
+
+    if (typeof THREE === 'undefined' || typeof THREE.FBXLoader === 'undefined' || typeof THREE.OrbitControls === 'undefined') {
+        setModelStatus('3D runtime unavailable', false);
+        return;
+    }
+
+    if (!modelPath) {
+        setModelStatus('No 3D model for this dish', false);
+        return;
+    }
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0xefe3d8, 35, 120);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(0, 2, 22);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const existingCanvas = stage.querySelector('canvas');
+    if (existingCanvas) existingCanvas.remove();
+    stage.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.8;
+    controls.target.set(0, 0, 0);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(50, 50, 50);
+    directionalLight.castShadow = true;
+    const pointLight1 = new THREE.PointLight(0xff6b6b, 0.3, 100);
+    pointLight1.position.set(20, 20, 20);
+    const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.3, 100);
+    pointLight2.position.set(-20, -20, 20);
+
+    scene.add(ambientLight, directionalLight, pointLight1, pointLight2);
+
+    const baseShadow = new THREE.Mesh(
+        new THREE.CircleGeometry(6.5, 64),
+        new THREE.MeshBasicMaterial({
+            color: 0x000000,
+            transparent: true,
+            opacity: 0.1
+        })
+    );
+    baseShadow.rotation.x = -Math.PI / 2;
+    baseShadow.position.y = -5.8;
+    scene.add(baseShadow);
+
+    setModelStatus('Loading 3D model...', false);
+
+    const loader = new THREE.FBXLoader();
+    loader.load(modelPath, function(object) {
+        object.scale.setScalar(0.08);
+        object.rotation.x = Math.PI * 40 / 180;
+
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (child.material) {
+                    const mats = Array.isArray(child.material) ? child.material : [child.material];
+                    mats.forEach(mat => {
+                        if (mat.map) {
+                            mat.map.flipY = true;
+                            mat.map.needsUpdate = true;
+                        }
+                        mat.needsUpdate = true;
+                    });
+                }
+            }
+        });
+
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
+        object.position.sub(center);
+        object.position.y = -1;
+
+        scene.add(object);
+        setModelStatus('', true);
+
+        modelPreview = {
+            stage,
+            renderer,
+            camera,
+            scene,
+            controls,
+            object,
+            resize() {
+                const width = stage.clientWidth || 320;
+                const height = stage.clientHeight || 240;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                controls.update();
+            }
+        };
+
+        modelPreview.resize();
+
+        function animate() {
+            if (!modelPreview) return;
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+            object.position.y = -1 + Math.sin(time * 0.8) * 0.5;
+            object.rotation.y += 0.01;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    }, undefined, function(error) {
+        const message = error && error.message ? error.message : 'Failed to load 3D model';
+        setModelStatus(message, false);
+    });
+}
+
 function initLightbox() {
-    // 创建灯箱元素
     const lightbox = document.createElement('div');
     lightbox.className = 'lightbox-overlay';
     lightbox.id = 'lightboxOverlay';
@@ -343,15 +326,6 @@ function initLightbox() {
         lightbox.classList.remove('active');
     });
 
-    // 绑定图片点击
-    document.addEventListener('click', function(e) {
-        if (e.target.dataset.lightbox) {
-            const img = document.getElementById('lightboxImg');
-            if (img) img.src = e.target.dataset.lightbox;
-            lightbox.classList.add('active');
-        }
-    });
-
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             lightbox.classList.remove('active');
@@ -359,11 +333,20 @@ function initLightbox() {
     });
 }
 
-// ===========================
-// 窗口大小变化时重新布局
-// ===========================
+function openLightbox(src, alt) {
+    const lightbox = document.getElementById('lightboxOverlay');
+    const lightboxImg = document.getElementById('lightboxImg');
+    if (!lightbox || !lightboxImg || !src) return;
+
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('active');
+}
+
 window.addEventListener('resize', debounce(function() {
-    applyLayout();
+    if (modelPreview) {
+        modelPreview.resize();
+    }
     if (typeof window.resizeParticleCanvas === 'function') {
         window.resizeParticleCanvas();
     }

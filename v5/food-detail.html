@@ -36,118 +36,73 @@
     <!-- Particle Background -->
     <canvas id="detail-particle-canvas"></canvas>
 
-    <!-- Desktop Background Label -->
     <div class="detail-desktop-bg">
         <div class="desktop-label" id="desktopLabel"></div>
     </div>
 
-    <!-- Floating Windows Container -->
-    <div class="windows-container" id="windowsContainer">
+    <main class="detail-layout">
+        <section class="detail-header">
+            <div class="detail-header-number" id="titleCardNumber"></div>
+            <div class="detail-header-main">
+                <h1 class="detail-header-zh" id="titleCardZh"></h1>
+                <div class="detail-header-en" id="titleCardEn"></div>
+            </div>
+            <div class="detail-header-location" id="titleCardLocation"></div>
+        </section>
 
-        <!-- Window: 主图/封面 -->
-        <div class="float-window" id="win-cover" data-win="cover">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-cover')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-cover')"></span>
-                    <span class="dot dot-green"></span>
+        <section class="detail-grid">
+            <article class="detail-panel" id="win-video">
+                <div class="detail-panel-title" id="winVideoTitle">視頻</div>
+                <div class="detail-panel-body detail-panel-video">
+                    <video id="winVideo" controls muted loop playsinline>
+                        <source id="winVideoSrc" src="" type="video/mp4">
+                    </video>
                 </div>
-                <div class="win-title" id="winCoverTitle">Cover Image</div>
-            </div>
-            <div class="win-body">
-                <img id="winCoverImg" src="" alt="" />
-            </div>
-        </div>
+            </article>
 
-        <!-- Window: 视频 -->
-        <div class="float-window" id="win-video" data-win="video">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-video')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-video')"></span>
-                    <span class="dot dot-green"></span>
+            <article class="detail-panel" id="win-model">
+                <div class="detail-panel-title">3D 模型</div>
+                <div class="detail-panel-body detail-panel-model">
+                    <div class="model-stage" id="winModelStage">
+                        <div class="model-status" id="winModelStatus">Loading 3D model...</div>
+                    </div>
                 </div>
-                <div class="win-title" id="winVideoTitle">Interview 訪問</div>
-            </div>
-            <div class="win-body win-body-video">
-                <video id="winVideo" controls muted loop playsinline>
-                    <source id="winVideoSrc" src="" type="video/mp4">
-                </video>
-            </div>
-        </div>
+            </article>
 
-        <!-- Window: 文字描述 -->
-        <div class="float-window" id="win-desc" data-win="desc">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-desc')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-desc')"></span>
-                    <span class="dot dot-green"></span>
+            <article class="detail-panel" id="win-display">
+                <div class="detail-panel-title" id="winDisplayTitle">圖片展示</div>
+                <div class="detail-panel-body detail-panel-image detail-panel-display">
+                    <div class="detail-display-wall" id="winDisplayWall"></div>
                 </div>
-                <div class="win-title">Description 內容</div>
-            </div>
-            <div class="win-body win-body-scroll">
-                <div class="win-desc-content" id="winDescContent"></div>
-            </div>
-        </div>
+            </article>
 
-        <!-- Window: 图片集 -->
-        <div class="float-window" id="win-gallery" data-win="gallery">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-gallery')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-gallery')"></span>
-                    <span class="dot dot-green"></span>
+            <article class="detail-panel" id="win-gallery">
+                <div class="detail-panel-title" id="winGalleryTitle">圖頁</div>
+                <div class="detail-panel-body detail-panel-gallery">
+                    <div class="gallery-grid" id="winGalleryGrid"></div>
                 </div>
-                <div class="win-title">Gallery 相片集</div>
-            </div>
-            <div class="win-body win-body-gallery">
-                <div class="gallery-grid" id="winGalleryGrid"></div>
-            </div>
-        </div>
+            </article>
 
-        <!-- Window: 基本信息 -->
-        <div class="float-window" id="win-info" data-win="info">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-info')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-info')"></span>
-                    <span class="dot dot-green"></span>
+            <article class="detail-panel" id="win-desc">
+                <div class="detail-panel-title">簡介</div>
+                <div class="detail-panel-body detail-panel-scroll">
+                    <div class="win-desc-content" id="winDescContent"></div>
                 </div>
-                <div class="win-title">Information 資料</div>
-            </div>
-            <div class="win-body">
-                <div class="info-card" id="winInfoCard"></div>
-            </div>
-        </div>
+            </article>
 
-        <!-- Window: 标题卡 (始终可见) -->
-        <div class="float-window float-window-title" id="win-title" data-win="title">
-            <div class="win-titlebar">
-                <div class="win-dots">
-                    <span class="dot dot-red" onclick="closeWindow('win-title')"></span>
-                    <span class="dot dot-yellow" onclick="minimizeWindow('win-title')"></span>
-                    <span class="dot dot-green"></span>
+            <article class="detail-panel" id="win-info">
+                <div class="detail-panel-title">採訪碎片</div>
+                <div class="detail-panel-body detail-panel-scroll">
+                    <div class="fragment-list" id="winInfoCard"></div>
                 </div>
-                <div class="win-title">Title</div>
-            </div>
-            <div class="win-body win-body-title">
-                <div class="title-card-number" id="titleCardNumber"></div>
-                <div class="title-card-zh" id="titleCardZh"></div>
-                <div class="title-card-en" id="titleCardEn"></div>
-                <div class="title-card-location" id="titleCardLocation"></div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Taskbar: 显示已关闭/最小化的窗口 -->
-    <div class="detail-taskbar" id="detailTaskbar">
-        <div class="taskbar-label">Windows</div>
-        <div class="taskbar-items" id="taskbarItems"></div>
-    </div>
+            </article>
+        </section>
+    </main>
 
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/libs/fflate.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/detail.js"></script>
 </body>
