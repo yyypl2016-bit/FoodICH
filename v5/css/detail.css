@@ -1,0 +1,470 @@
+/* ========================
+   FOOD DETAIL PAGE
+   可拖动浮动窗口系统
+   参考 fore-seen-property.com 详情页
+   ======================== */
+
+/* 详情页背景 */
+body.detail-page {
+    background: radial-gradient(circle at center, #2b1d1d 0%, #0a0908 100%);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+    user-select: none;
+}
+
+/* 粒子 canvas */
+#detail-particle-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+}
+
+/* 桌面背景（叠在粒子上，透明） */
+.detail-desktop-bg {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.desktop-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 600;
+    color: rgba(255,255,255,0.03);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* 返回按钮 */
+.detail-back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9000;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.detail-back-btn:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+    transform: translateX(-2px);
+}
+
+/* ========================
+   浮动窗口容器
+   ======================== */
+.windows-container {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* ========================
+   单个浮动窗口
+   ======================== */
+.float-window {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow:
+        0 4px 6px rgba(0,0,0,0.07),
+        0 12px 40px rgba(0,0,0,0.15),
+        0 0 0 0.5px rgba(0,0,0,0.08);
+    pointer-events: all;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+    min-width: 200px;
+    min-height: 80px;
+}
+
+.float-window:hover {
+    box-shadow:
+        0 8px 16px rgba(0,0,0,0.1),
+        0 24px 60px rgba(0,0,0,0.2),
+        0 0 0 0.5px rgba(0,0,0,0.1);
+}
+
+.float-window.is-dragging {
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.25),
+        0 40px 80px rgba(0,0,0,0.15),
+        0 0 0 0.5px rgba(0,0,0,0.1);
+    transition: none;
+    cursor: grabbing;
+}
+
+.float-window.minimized .win-body {
+    display: none;
+}
+
+.float-window.minimized {
+    min-height: 0;
+}
+
+/* 窗口标题栏 */
+.win-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f0f0f0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.win-titlebar:active {
+    cursor: grabbing;
+}
+
+/* macOS 风格圆点 */
+.win-dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+}
+
+.dot:hover {
+    filter: brightness(0.85);
+}
+
+.dot-red   { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+
+.win-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #555;
+    letter-spacing: 0.03em;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 窗口内容区 */
+.win-body {
+    padding: 0;
+    overflow: hidden;
+}
+
+.win-body img,
+.win-body video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.win-body-video {
+    background: #000;
+}
+
+.win-body-video video {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.win-body-scroll {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.win-body-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.win-body-scroll::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+.win-body-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+/* 描述内容 */
+.win-desc-content {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.win-desc-content h3 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.win-desc-content p {
+    color: #555;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    line-height: 1.8;
+}
+
+.win-desc-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* 图片集 */
+.win-body-gallery {
+    padding: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.gallery-grid img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.85;
+}
+
+.gallery-grid img:hover {
+    transform: scale(1.04);
+    opacity: 1;
+}
+
+/* 信息卡 */
+.info-card {
+    padding: 20px;
+    font-family: 'Sora', sans-serif;
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-row-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #aaa;
+}
+
+.info-row-value {
+    font-size: 0.85rem;
+    color: #222;
+    font-weight: 500;
+}
+
+.info-row-value.large {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1;
+}
+
+/* 标题卡窗口 */
+.float-window-title .win-body-title {
+    padding: 20px 24px;
+    background: #4a90d9;
+    color: #fff;
+    min-width: 180px;
+}
+
+.title-card-number {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.title-card-zh {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+}
+
+.title-card-en {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 8px;
+}
+
+.title-card-location {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.7rem;
+    opacity: 0.65;
+    letter-spacing: 0.05em;
+}
+
+/* ========================
+   任务栏（已关闭/最小化的窗口）
+   ======================== */
+.detail-taskbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9000;
+    background: rgba(15, 12, 10, 0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    min-width: 200px;
+}
+
+.taskbar-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+}
+
+.taskbar-items {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.taskbar-item {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.taskbar-item:hover {
+    background: #4a90d9;
+    color: #fff;
+    border-color: #4a90d9;
+}
+
+/* ========================
+   图片灯箱
+   ======================== */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.lightbox-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+}
+
+/* ========================
+   响应式
+   ======================== */
+@media (max-width: 768px) {
+    .float-window {
+        min-width: 160px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detail-taskbar {
+        bottom: 10px;
+        padding: 6px 12px;
+    }
+}
