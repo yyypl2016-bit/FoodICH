@@ -38,6 +38,80 @@ function randomBetween(min, max) {
     return Math.random() * (max - min) + min;
 }
 
+function createTextCanvas(text, options) {
+    const settings = options || {};
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const fontSize = settings.fontSize || 160;
+    const fontFamily = settings.fontFamily || 'Arial Black, Arial, sans-serif';
+    const paddingX = settings.paddingX || 80;
+    const paddingY = settings.paddingY || 56;
+
+    context.font = `700 ${fontSize}px ${fontFamily}`;
+    const metrics = context.measureText(text);
+    canvas.width = Math.max(256, Math.ceil(metrics.width + paddingX * 2));
+    canvas.height = Math.max(128, Math.ceil(fontSize + paddingY * 2));
+
+    const renderContext = canvas.getContext('2d');
+    renderContext.clearRect(0, 0, canvas.width, canvas.height);
+    renderContext.font = `700 ${fontSize}px ${fontFamily}`;
+    renderContext.textAlign = 'center';
+    renderContext.textBaseline = 'middle';
+    renderContext.fillStyle = settings.color || '#ffffff';
+    renderContext.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    return canvas;
+}
+
+function createTextPlane(text, options) {
+    const settings = options || {};
+    const canvas = createTextCanvas(text, settings);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+
+    const aspect = canvas.width / canvas.height;
+    const height = settings.height || 2.2;
+    const width = height * aspect;
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        opacity: settings.opacity == null ? 0.98 : settings.opacity,
+        depthWrite: false
+    });
+
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+    mesh.userData.texture = texture;
+    return mesh;
+}
+
+function createLayeredTextGroup(lines, options) {
+    const settings = options || {};
+    const textGroup = new THREE.Group();
+    const lineSpacing = settings.lineSpacing || 3;
+    const totalHeight = (Math.max(lines.length - 1, 0)) * lineSpacing;
+
+    lines.forEach((line, index) => {
+        const mesh = createTextPlane(line.text, {
+            color: line.color,
+            fontSize: line.fontSize || settings.fontSize,
+            fontFamily: line.fontFamily || settings.fontFamily,
+            height: line.height || settings.height,
+            opacity: line.opacity
+        });
+        mesh.position.y = (totalHeight / 2) - (index * lineSpacing);
+        if (line.positionX) mesh.position.x = line.positionX;
+        if (line.positionZ) mesh.position.z = line.positionZ;
+        textGroup.add(mesh);
+    });
+
+    return textGroup;
+}
+
+window.createLayeredTextGroup = createLayeredTextGroup;
+
 // ===========================
 // PARTICLE SYSTEM (Colorful Theme)
 // ===========================

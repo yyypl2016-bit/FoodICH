@@ -53,8 +53,9 @@ function populatePage(dish) {
     const videoSrc = document.getElementById('winVideoSrc');
     const videoEl = document.getElementById('winVideo');
     if (videoItems.length > 0 && videoSrc && videoEl) {
-        videoSrc.src = videoItems[0].src;
-        videoEl.load();
+        videoSrc.src = '';
+        videoEl.preload = 'none';
+        videoEl.src = videoItems[0].src;
         setEl('winVideoTitle', '視頻');
     } else {
         const winVideo = document.getElementById('win-video');
